@@ -575,101 +575,127 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
 <script>
 /* ── Awzsome Smile A Logo ──────────────────────────────────────────── */
 (function(){
-  const NS='http://www.w3.org/2000/svg';
-  const cvs=document.getElementById('logo-m');
-  const ctx=cvs.getContext('2d');
+  const NS  = 'http://www.w3.org/2000/svg';
+  const cvs = document.getElementById('logo-m');
+  const ctx = cvs.getContext('2d');
 
   document.fonts.load("800 100px 'Plus Jakarta Sans'").then(function(){
 
-    function makeLogo(fontSize, inkColor, smileColor){
-      ctx.font='800 '+fontSize+'px "Plus Jakarta Sans"';
-      const mFull = ctx.measureText('Awzsome');
-      const mA    = ctx.measureText('A');
-      const cap   = mA.actualBoundingBoxAscent || fontSize*0.72;
-      const desc  = mA.actualBoundingBoxDescent|| fontSize*0.12;
-      const svgH  = Math.ceil(cap + desc + fontSize*0.05);
-      const bl    = Math.ceil(cap + fontSize*0.02);
-      const W     = Math.ceil(mFull.width);
+    function makeLogo(fontSize, inkColor, smileColor) {
+      ctx.font = '800 ' + fontSize + 'px "Plus Jakarta Sans"';
+      const mFull  = ctx.measureText('Awzsome');
+      const mA     = ctx.measureText('A');
+      const cap    = mA.actualBoundingBoxAscent  || fontSize*0.72;
+      const desc   = mA.actualBoundingBoxDescent || fontSize*0.12;
+      const aLeft  = mA.actualBoundingBoxLeft  !==undefined ? -mA.actualBoundingBoxLeft  : 0;
+      const aRight = mA.actualBoundingBoxRight !==undefined ?  mA.actualBoundingBoxRight : mA.width;
 
-      const aLeft  = mA.actualBoundingBoxLeft  !== undefined ? -mA.actualBoundingBoxLeft  : 0;
-      const aRight = mA.actualBoundingBoxRight !== undefined ?  mA.actualBoundingBoxRight : mA.width;
+      const sw     = fontSize * 0.134;
+      const apexX  = (aLeft + aRight) / 2;
+      const apexY  = 0;
+      const baseY  = cap;
 
-      const s=document.createElementNS(NS,'svg');
-      s.setAttribute('width', W);
-      s.setAttribute('height',svgH);
-      s.setAttribute('viewBox','0 0 '+W+' '+svgH);
+      // Legs — narrower spread (72% of full A width)
+      const lBotX  = apexX + (aLeft  - apexX) * 0.72;
+      const rBotX  = apexX + (aRight - apexX) * 0.72;
 
-      // Full word — A transparent, wzsome visible
-      const t=document.createElementNS(NS,'text');
-      t.setAttribute('x','0'); t.setAttribute('y',bl);
-      t.setAttribute('font-size',fontSize);
-      t.setAttribute('font-weight','800');
-      t.setAttribute('font-family',"'Plus Jakarta Sans',sans-serif");
-      t.setAttribute('letter-spacing','-0.01em');
+      // Smile geometry
+      const tFrac  = 0.64;
+      const crossY = apexY + (baseY - apexY) * tFrac;
+      const lEdgeX = apexX + tFrac*(lBotX - apexX);
+      const rEdgeX = apexX + tFrac*(rBotX - apexX);
+      const ext    = sw * 1.5;
+      const lx     = lEdgeX - ext;
+      const rx     = rEdgeX + ext;
+      const dip    = (baseY - apexY) * 0.26;
+      const arcSW  = sw * 0.50;
+      const tLen   = sw * 0.82;
 
-      const spA=document.createElementNS(NS,'tspan');
-      spA.setAttribute('fill','transparent');
-      spA.textContent='A';
+      // Terminal direction vectors
+      const lDX=lBotX-apexX, lDY=baseY-apexY, lL=Math.hypot(lDX,lDY);
+      const lUX=lDX/lL, lUY=lDY/lL;
+      const rDX=rBotX-apexX, rDY=baseY-apexY, rL=Math.hypot(rDX,rDY);
+      const rUX=rDX/rL, rUY=rDY/rL;
 
-      const spW=document.createElementNS(NS,'tspan');
+      // Calculate padding to prevent clipping
+      const leftmostX  = Math.min(lx + lUX*tLen, lx - lUX*tLen, lx);
+      const bottommostY = Math.max(crossY+dip, crossY+lUY*tLen, crossY+rUY*tLen, baseY);
+      const padL   = Math.ceil(Math.max(0, -leftmostX) + sw*0.6);
+      const padTop = Math.ceil(sw * 0.6);
+      const padBot = Math.ceil(Math.max(0, bottommostY - cap) + sw*0.6 + desc);
+      const totalW = Math.ceil(mFull.width + padL + sw*0.6);
+      const totalH = Math.ceil(cap + padTop + padBot);
+      const bl     = padTop + cap + fontSize*0.02;
+      const ox = padL, oy = padTop;
+
+      const s = document.createElementNS(NS,'svg');
+      s.setAttribute('width',totalW); s.setAttribute('height',totalH);
+      s.setAttribute('viewBox','0 0 '+totalW+' '+totalH);
+
+      // wzsome text — A transparent, font handles kerning
+      const txt = document.createElementNS(NS,'text');
+      txt.setAttribute('x',ox.toFixed(1)); txt.setAttribute('y',bl.toFixed(1));
+      txt.setAttribute('font-size',fontSize); txt.setAttribute('font-weight','800');
+      txt.setAttribute('font-family',"'Plus Jakarta Sans',sans-serif");
+      txt.setAttribute('letter-spacing','-0.01em');
+      const spA = document.createElementNS(NS,'tspan');
+      spA.setAttribute('fill','transparent'); spA.textContent='A';
+      const spW = document.createElementNS(NS,'tspan');
       spW.setAttribute('fill',inkColor);
+      spW.setAttribute('dx',(fontSize*0.02).toFixed(1));
       spW.textContent='wzsome';
+      txt.appendChild(spA); txt.appendChild(spW); s.appendChild(txt);
 
-      t.appendChild(spA); t.appendChild(spW); s.appendChild(t);
+      // Adjusted coordinates
+      const AX=apexX+ox, AY=apexY+oy;
+      const LBX=lBotX+ox, RBX=rBotX+ox, BY=baseY+oy;
+      const CY=crossY+oy, LX=lx+ox, RX=rx+ox;
 
-      // Draw custom A legs matching PJS 800 weight
-      const sw    = fontSize*0.136;
-      const apexX = (aLeft+aRight)/2;
-      const apexY = bl-cap;
-      const baseY = bl+desc*0.1;
-      const lbx   = aLeft +sw*0.9;
-      const rbx   = aRight-sw*0.9;
-
-      function leg(x1,y1,x2,y2,th){
-        const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);
-        const nx=-dy/L*th, ny=dx/L*th;
-        const p=document.createElementNS(NS,'path');
-        p.setAttribute('d',
-          'M'+x1.toFixed(2)+' '+y1.toFixed(2)+
-          ' L'+(x1+nx).toFixed(2)+' '+(y1+ny).toFixed(2)+
-          ' L'+(x2+nx).toFixed(2)+' '+(y2+ny).toFixed(2)+
-          ' L'+x2.toFixed(2)+' '+y2.toFixed(2)+' Z');
-        p.setAttribute('fill',inkColor);
-        return p;
+      function line(x1,y1,x2,y2,stroke,width){
+        const l=document.createElementNS(NS,'line');
+        l.setAttribute('x1',x1.toFixed(1)); l.setAttribute('y1',y1.toFixed(1));
+        l.setAttribute('x2',x2.toFixed(1)); l.setAttribute('y2',y2.toFixed(1));
+        l.setAttribute('stroke',stroke); l.setAttribute('stroke-width',width.toFixed(1));
+        l.setAttribute('stroke-linecap','round'); s.appendChild(l);
       }
-      s.appendChild(leg(apexX,apexY,lbx,baseY, sw));
-      s.appendChild(leg(apexX,apexY,rbx,baseY,-sw));
+
+      // A legs — thick rounded strokes
+      line(AX,AY,LBX,BY,inkColor,sw);
+      line(AX,AY,RBX,BY,inkColor,sw);
 
       // Smile arc
-      const tFrac= 0.50;
-      const crossY= apexY+(baseY-apexY)*tFrac;
-      const lx= apexX+tFrac*(lbx-apexX)+sw*0.05;
-      const rx= apexX+tFrac*(rbx-apexX)-sw*0.05;
-      const dip=(baseY-apexY)*0.19;
-
       const arc=document.createElementNS(NS,'path');
       arc.setAttribute('d',
-        'M'+lx.toFixed(1)+' '+crossY.toFixed(1)+
-        ' Q'+apexX.toFixed(1)+' '+(crossY+dip).toFixed(1)+
-        ' '+rx.toFixed(1)+' '+crossY.toFixed(1));
+        'M'+LX.toFixed(1)+' '+CY.toFixed(1)+
+        ' Q'+AX.toFixed(1)+' '+(CY+dip).toFixed(1)+
+        ' '+RX.toFixed(1)+' '+CY.toFixed(1));
       arc.setAttribute('stroke',smileColor);
-      arc.setAttribute('stroke-width',(sw*0.82).toFixed(1));
+      arc.setAttribute('stroke-width',arcSW.toFixed(1));
       arc.setAttribute('fill','none');
       arc.setAttribute('stroke-linecap','round');
       s.appendChild(arc);
 
+      // Fork terminals
+      function fork(px,py,ux,uy){
+        line(px,py,px-ux*tLen,py-uy*tLen,smileColor,arcSW);
+        line(px,py,px+ux*tLen,py+uy*tLen,smileColor,arcSW);
+      }
+      fork(LX,CY,lUX,lUY);
+      fork(RX,CY,rUX,rUY);
+
       return s;
     }
 
-    // Nav logo — 28px, dark ink, coral smile
+    // Nav logo — dark ink, coral smile
     var navSlot = document.getElementById('nav-logo-slot');
     if(navSlot){ navSlot.appendChild(makeLogo(28,'#1C1917','#E85D35')); }
 
-    // Footer logo — 28px, warm white, coral smile
+    // Footer logo — warm white, coral smile
     var footSlot = document.getElementById('footer-logo-slot');
     if(footSlot){ footSlot.appendChild(makeLogo(28,'#FAFAF9','#E85D35')); }
   });
 })();
 </script>
+
 </body>
 </html>
