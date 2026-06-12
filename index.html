@@ -68,21 +68,25 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
 .wa-av{width:34px;height:34px;border-radius:50%;background:var(--wa);display:flex;align-items:center;justify-content:center;font-size:.8125rem;font-weight:700;color:#fff;flex-shrink:0}
 .wa-n{font-size:.8125rem;font-weight:700;color:#fff}
 .wa-s{font-size:.65rem;color:rgba(255,255,255,.7)}
-.chat{flex:1;padding:.75rem .625rem;display:flex;flex-direction:column;gap:.425rem;overflow:hidden}
+.chat{flex:1;padding:.75rem .625rem;display:flex;flex-direction:column;gap:.425rem;overflow:hidden;justify-content:flex-end}
 .m{max-width:86%;padding:.4375rem .6875rem .3125rem;font-size:.7rem;line-height:1.45;border-radius:8px}
 .m.u{background:#D9FDD3;align-self:flex-end;border-radius:8px 0 8px 8px}
 .m.b{background:#fff;align-self:flex-start;border-radius:0 8px 8px 8px;box-shadow:0 1px 1px rgba(0,0,0,.08)}
 .m.b strong{font-size:.7125rem;font-weight:700;color:#C4421C;display:block;margin-bottom:.1rem}
 .t{font-size:.57rem;color:rgba(0,0,0,.36);float:right;margin-left:.5rem}
-.m:nth-child(1){animation:mi .3s .5s ease both}
-.m:nth-child(2){animation:mi .3s .85s ease both}
-.m:nth-child(3){animation:mi .3s 1.2s ease both}
-.m:nth-child(4){animation:mi .3s 1.55s ease both}
-.m:nth-child(5){animation:mi .3s 1.9s ease both}
-.m:nth-child(6){animation:mi .3s 2.25s ease both}
-@keyframes mi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+/* messages start hidden — revealed by JS for interactive playback */
+.chat .m{opacity:0;transform:translateY(8px);transition:opacity .25s ease,transform .25s ease}
+.chat .m.show{opacity:1;transform:none}
+/* typing indicator bubble */
+.typing{align-self:flex-start;background:#fff;border-radius:0 8px 8px 8px;box-shadow:0 1px 1px rgba(0,0,0,.08);padding:.5rem .7rem;display:none;gap:3px;align-items:center}
+.typing.show{display:flex}
+.typing span{width:5px;height:5px;border-radius:50%;background:#9aa0a6;animation:td 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
 .inp-bar{background:#F0F2F5;padding:.4375rem .625rem;display:flex;align-items:center;gap:.4rem}
-.inp-f{flex:1;background:#fff;border-radius:20px;padding:.375rem .6875rem;font-size:.6875rem;color:#999;border:none;outline:none}
+.inp-f{flex:1;background:#fff;border-radius:20px;padding:.375rem .6875rem;font-size:.6875rem;color:#999;border:none;outline:none;transition:color .15s}
+.inp-f.typing-text{color:#1C1917}
 .send{width:28px;height:28px;border-radius:50%;background:#E85D35;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
 /* DIVIDER */
@@ -271,7 +275,7 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
 
 @media(max-width:1024px){
   .hero{grid-template-columns:1fr;padding-bottom:4rem;min-height:auto}
-  .hero-visual{order:-1;padding-top:2rem;justify-content:center}
+  .hero-visual{order:1;padding-top:2.5rem;justify-content:center}
   .hero h1,.hero-sub{text-align:center}
   .hero-sub,.hero-btns,.hero-proof{margin-left:auto;margin-right:auto;justify-content:center}
   .vl{grid-template-columns:1fr}
@@ -339,16 +343,17 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
               <div class="wa-av">A</div>
               <div><div class="wa-n">Awzsome</div><div class="wa-s">Local services · online</div></div>
             </div>
-            <div class="chat">
+            <div class="chat" id="hero-chat">
               <div class="m u">Pizza deals near me 🍕<span class="t">2:14</span></div>
               <div class="m b"><strong>Awzsome</strong>Tony's Pizza — 0.4 miles<br>Large pepperoni $12.99<br>This weekend only! 🎉<span class="t">2:14</span></div>
               <div class="m u">Best plumber near me?<span class="t">2:16</span></div>
               <div class="m b"><strong>Awzsome</strong>Manteca Plumbing Co<br>⭐ 4.8 · 1.2 miles · Open now<br>(209) 823-4455<span class="t">2:16</span></div>
               <div class="m u">Hair salon deals?<span class="t">2:19</span></div>
               <div class="m b"><strong>Awzsome</strong>Glamour Cuts — 20% off ✂️<br>456 Yosemite Ave, Manteca<br>Valid all this week<span class="t">2:19</span></div>
+              <div class="typing" id="hero-typing"><span></span><span></span><span></span></div>
             </div>
             <div class="inp-bar">
-              <div class="inp-f">Ask anything local...</div>
+              <div class="inp-f" id="hero-input">Ask anything local...</div>
               <div class="send"><svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></div>
             </div>
           </div>
@@ -559,11 +564,31 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
         List your deal — it's free
       </a>
     </div>
-    <div class="vthread r">
-      <div class="vm vv"><div class="vwho">Tony's Pizza → Awzsome</div>Hi I am Tony from Tony's Pizza at 123 Main St Manteca. Large pepperoni $12.99 this weekend only.</div>
-      <div class="vm"><div class="vwho">Awzsome → Tony</div>Got it! Here is what I extracted:<br><br>Business: Tony's Pizza<br>Address: 123 Main St, Manteca<br>Deal: Large pepperoni pizza $12.99<br>Valid: This weekend<br><br>Reply YES to submit or NO to re-enter.</div>
-      <div class="vm vv"><div class="vwho">Tony's Pizza → Awzsome</div>YES</div>
-      <div class="vm"><div class="vwho">Awzsome → Tony</div><div class="live">✓ Your deal is LIVE on Awzsome!</div><br>Customers in Manteca can now find your deal when they search for pizza. We will notify you when someone redeems it.</div>
+    <div class="hero-visual r" style="align-items:center">
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"><div class="nb"></div><div class="nd"></div></div>
+          <div class="phone-inner">
+            <div class="screen">
+              <div class="wa-h">
+                <div class="wa-av">A</div>
+                <div><div class="wa-n">Awzsome Business</div><div class="wa-s">Deal submission · online</div></div>
+              </div>
+              <div class="chat" id="vendor-chat">
+                <div class="m u">Hi I am Tony from Tony's Pizza at 123 Main St Manteca. Large pepperoni $12.99 this weekend only.<span class="t">10:02</span></div>
+                <div class="m b"><strong>Awzsome</strong>Got it! Here is what I extracted:<br><br>🏪 Tony's Pizza<br>📍 123 Main St, Manteca<br>🍕 Large pepperoni $12.99<br>📅 Valid: This weekend<br><br>Reply YES to submit.<span class="t">10:02</span></div>
+                <div class="m u">YES<span class="t">10:03</span></div>
+                <div class="m b"><strong>Awzsome</strong><span class="live">✓ Your deal is LIVE!</span><br>Customers in Manteca can now find your deal when they search for pizza. We will notify you when someone redeems it. 🎉<span class="t">10:03</span></div>
+                <div class="typing" id="vendor-typing"><span></span><span></span><span></span></div>
+              </div>
+              <div class="inp-bar">
+                <div class="inp-f" id="vendor-input">Type your deal...</div>
+                <div class="send"><svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -757,5 +782,80 @@ document.querySelectorAll('.r').forEach(el => obs.observe(el));
 </script>
 
 
+<script>
+/* ── Interactive WhatsApp chat animation (reusable) ───────────────── */
+(function(){
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  function animateChat(chatId, typingId, inputId, queries, idlePrompt){
+    const chat = document.getElementById(chatId);
+    if(!chat) return;
+    const typing = document.getElementById(typingId);
+    const input  = document.getElementById(inputId);
+    const msgs   = Array.from(chat.querySelectorAll('.m'));
+
+    async function typeInto(text){
+      input.classList.add('typing-text');
+      for(let i=0;i<=text.length;i++){
+        input.textContent = text.slice(0,i) || '\u200b';
+        await wait(34);
+      }
+      await wait(250);
+    }
+    function resetInput(){
+      input.classList.remove('typing-text');
+      input.textContent = idlePrompt;
+    }
+
+    async function play(){
+      msgs.forEach(m=>m.classList.remove('show'));
+      typing.classList.remove('show');
+      resetInput();
+      await wait(600);
+
+      for(let i=0;i<msgs.length;i++){
+        if(queries[i] !== undefined){
+          await typeInto(queries[i]);
+          resetInput();
+          msgs[i].classList.add('show');
+          chat.scrollTop = chat.scrollHeight;
+          await wait(500);
+        } else {
+          typing.classList.add('show');
+          chat.scrollTop = chat.scrollHeight;
+          await wait(1200);
+          typing.classList.remove('show');
+          msgs[i].classList.add('show');
+          chat.scrollTop = chat.scrollHeight;
+          await wait(950);
+        }
+      }
+      await wait(3400);
+      play();
+    }
+
+    let started=false;
+    const io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting && !started){ started=true; play(); }
+      });
+    },{threshold:0.3});
+    io.observe(chat);
+  }
+
+  // Hero consumer chat
+  animateChat('hero-chat','hero-typing','hero-input', {
+    0: 'Pizza deals near me 🍕',
+    2: 'Best plumber near me?',
+    4: 'Hair salon deals?'
+  }, 'Ask anything local...');
+
+  // Vendor / business owner chat
+  animateChat('vendor-chat','vendor-typing','vendor-input', {
+    0: 'Hi I am Tony from Tony\u2019s Pizza at 123 Main St Manteca. Large pepperoni $12.99 this weekend only.',
+    2: 'YES'
+  }, 'Type your deal...');
+})();
+</script>
 </body>
 </html>
