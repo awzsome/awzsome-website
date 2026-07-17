@@ -267,7 +267,7 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
 .fb{max-width:1200px;margin:0 auto;border-top:1px solid rgba(255,255,255,.08);padding-top:1.5rem;display:flex;justify-content:space-between;align-items:center;font-size:.9375rem;color:rgba(255,255,255,.3);flex-wrap:wrap;gap:.75rem}
 
 /* SHARED */
-.ico{width:18px;height:18px;fill:currentColor;flex-shrink:0}
+.ico{width:18px;height:18px;fill:var(--wa);flex-shrink:0}
 .r{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
 .r.in{opacity:1;transform:none}
 .d1{transition-delay:.08s}
@@ -292,6 +292,9 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
   .sec{padding:56px max(5vw,24px)}
   .sec-bg{padding:56px max(5vw,24px)}
 }
+
+.mock-col{display:flex;flex-direction:column;align-items:center}
+.mock-note{text-align:center;font-size:.8125rem;color:var(--ink3);margin-top:.875rem;font-weight:500;letter-spacing:.01em}
 </style>
 <canvas id="logo-m" style="display:none;position:absolute;top:-9999px"></canvas>
 </head>
@@ -303,7 +306,7 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
     <a href="#how">How it works</a>
     <a href="#benefits">Features</a>
     <a href="#vendors">For businesses</a>
-    <a href="#stories">Stories</a>
+    
   </div>
   <a href="https://wa.me/15556561867?text=Hi" class="nav-cta">
     <svg class="ico" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
@@ -334,6 +337,7 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
     </div>
   </div>
   <div class="hero-visual">
+    <div class="mock-col">
     <div class="phone-wrap">
       <div class="phone">
         <div class="notch"><div class="nb"></div><div class="nd"></div></div>
@@ -360,21 +364,12 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
         </div>
       </div>
     </div>
+      <p class="mock-note">Illustrative example</p>
+    </div>
   </div>
 </div>
 </div>
 
-<hr class="div">
-<div class="logos">
-  <p class="logos-lbl">Trusted by businesses in Manteca, CA</p>
-  <div class="logos-row">
-    <span class="logo-i">Tony's Pizza</span>
-    <span class="logo-i">Glamour Cuts</span>
-    <span class="logo-i">Manteca Auto</span>
-    <span class="logo-i">Valley Dental</span>
-    <span class="logo-i">Fresh Mart</span>
-  </div>
-</div>
 <hr class="div">
 
 <!-- HOW -->
@@ -450,10 +445,10 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </div>
       <h3 class="ben-title">100% verified deals</h3>
-      <p class="ben-text">Every deal is submitted directly by the business — not scraped, not hallucinated by AI. If it is in Awzsome, it is real and live today.</p>
+      <p class="ben-text">Verified deals come straight from the business and are reviewed by a person before they go live. We show them exactly as submitted — no AI rewrites the price, the terms or the address.</p>
       <div class="ben-stat">
-        <span class="ben-stat-n" style="color:#059669">0</span>
-        <span class="ben-stat-l">AI hallucinations — ever</span>
+        <span class="ben-stat-n" style="color:#059669">100%</span>
+        <span class="ben-stat-l">Verified deals shown as submitted</span>
       </div>
     </div>
 
@@ -483,58 +478,21 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
       </div>
     </div>
 
-    <!-- Card 5 — Friday alerts -->
+    <!-- Card 5 — Always on WhatsApp -->
     <div class="ben-card c-pink r">
       <div class="ben-icon pink">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       </div>
-      <h3 class="ben-title">Friday deal alerts</h3>
-      <p class="ben-text">Every Friday at 5pm, a personalised WhatsApp message with the best local deals of the week. Google literally cannot do this.</p>
+      <h3 class="ben-title">Deals worth knowing</h3>
+      <p class="ben-text">New offers from Manteca businesses land in the same place you already chat. Ask any time — nothing to check, nothing to install.</p>
       <div class="ben-stat">
-        <span class="ben-stat-n" style="color:#E11D48">5pm</span>
-        <span class="ben-stat-l">every Friday, your inbox</span>
+        <span class="ben-stat-n" style="color:#E11D48">68+</span>
+        <span class="ben-stat-l">Always on WhatsApp</span>
       </div>
     </div>
 
   </div>
 </section>
-
-<hr class="div">
-
-<!-- TESTIMONIALS -->
-<div class="sec-bg" id="stories">
-<div class="sec-in">
-  <p class="lbl r">Community stories</p>
-  <h2 class="ttl r">Manteca loves Awzsome</h2>
-  <p class="sub r">Real people. Real savings. Real local businesses.</p>
-  <div class="tg">
-    <div class="tc r">
-      <div class="stars">★★★★★</div>
-      <p class="tt">"I asked for pizza deals and got a real offer from Tony's — saved $8 on my order. Did not download anything or create an account. Just WhatsApp."</p>
-      <div class="ta">
-        <div class="tav" style="background:#E85D35">M</div>
-        <div><div class="tn">Maria R.</div><div class="tr">Manteca resident</div></div>
-      </div>
-    </div>
-    <div class="tc r d1">
-      <div class="stars">★★★★★</div>
-      <p class="tt">"Found a plumber on Sunday morning when my pipe burst. Awzsome gave me a real local number with real reviews. Problem solved in 2 hours."</p>
-      <div class="ta">
-        <div class="tav" style="background:#78716C">J</div>
-        <div><div class="tn">James K.</div><div class="tr">Manteca homeowner</div></div>
-      </div>
-    </div>
-    <div class="tc r d2">
-      <div class="stars">★★★★★</div>
-      <p class="tt">"Submitted our weekly special via WhatsApp in two minutes. No website, no forms. Got three new customers that same weekend who mentioned Awzsome."</p>
-      <div class="ta">
-        <div class="tav" style="background:#25D366">T</div>
-        <div><div class="tn">Tony B.</div><div class="tr">Tony's Pizza, Manteca</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
 
 <hr class="div">
 
@@ -556,7 +514,7 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
         </div>
         <div class="vstep">
           <div class="vn">3</div>
-          <div><div class="vtt">Deal goes live within 24 hours</div><div class="vtx">Local customers find your deal the next time they search for your category.</div></div>
+          <div><div class="vtt">We review it, then it goes live</div><div class="vtx">A person reviews every deal before publication. Once approved, local customers find it when they search your category.</div></div>
         </div>
       </div>
       <a href="https://wa.me/15556561867?text=Hi+I+am+a+business" class="btn-p r" style="margin-top:2rem;display:inline-flex">
@@ -565,7 +523,8 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
       </a>
     </div>
     <div class="hero-visual r" style="align-items:center">
-      <div class="phone-wrap">
+      <div class="mock-col">
+    <div class="phone-wrap">
         <div class="phone">
           <div class="notch"><div class="nb"></div><div class="nd"></div></div>
           <div class="phone-inner">
@@ -578,7 +537,7 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
                 <div class="m u">Hi I am Tony from Tony's Pizza at 123 Main St Manteca. Large pepperoni $12.99 this weekend only.<span class="t">10:02</span></div>
                 <div class="m b"><strong>Awzsome</strong>Got it! Here is what I extracted:<br><br>🏪 Tony's Pizza<br>📍 123 Main St, Manteca<br>🍕 Large pepperoni $12.99<br>📅 Valid: This weekend<br><br>Reply YES to submit.<span class="t">10:02</span></div>
                 <div class="m u">YES<span class="t">10:03</span></div>
-                <div class="m b"><strong>Awzsome</strong><span class="live">✓ Your deal is LIVE!</span><br>Customers in Manteca can now find your deal when they search for pizza. We will notify you when someone redeems it. 🎉<span class="t">10:03</span></div>
+                <div class="m b"><strong>Awzsome</strong><span class="live">✓ Submitted for review</span><br>We check every deal before it goes live. Once approved, customers in Manteca will find it when they search for pizza. 🎉<span class="t">10:03</span></div>
                 <div class="typing" id="vendor-typing"><span></span><span></span><span></span></div>
               </div>
               <div class="inp-bar">
@@ -589,6 +548,8 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
           </div>
         </div>
       </div>
+      <p class="mock-note">Illustrative example</p>
+    </div>
     </div>
   </div>
 </section>
@@ -601,7 +562,7 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
     <p class="cta-s">No downloads. No accounts. Just open WhatsApp.</p>
     <div class="cta-btns">
       <a href="https://wa.me/15556561867?text=Hi" class="bw">
-        <svg class="ico" viewBox="0 0 24 24" style="fill:#005CE6"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        <svg class="ico" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
         Start on WhatsApp
       </a>
       <a href="#vendors" class="bwo">List your business →</a>
@@ -625,7 +586,7 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
       <a href="#how">How it works</a>
       <a href="#benefits">Features</a>
       <a href="#vendors">For businesses</a>
-      <a href="#stories">Stories</a>
+      
     </div>
     <div class="fc">
       <h4>Services</h4>
