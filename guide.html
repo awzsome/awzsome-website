@@ -53,6 +53,10 @@
   }
 
   .wrap { max-width:760px; margin:0 auto; padding:24px 16px 32px; display:flex; flex-direction:column; align-items:center; gap:18px; }
+  .segmented { display:inline-flex; background:#fff; border:1px solid var(--line); border-radius:999px; padding:4px; gap:4px; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+  .seg { border:0; background:transparent; font:inherit; font-weight:600; font-size:14px; color:var(--muted); padding:9px 20px; border-radius:999px; cursor:pointer; transition:.15s; white-space:nowrap; }
+  .seg.active { background:var(--coral); color:#fff; }
+  .seg:focus-visible { outline:2px solid var(--coral); outline-offset:2px; }
   .kicker { font-size:13px; color:var(--muted); font-weight:600; }
 
   /* ---------- iPhone (true proportions, locked aspect ratio) ---------- */
@@ -158,6 +162,10 @@
 </nav>
 
 <main class="wrap">
+  <div class="segmented" role="tablist" aria-label="Choose walkthrough">
+    <button class="seg active" data-mode="consumer">For customers</button>
+    <button class="seg" data-mode="business">For businesses</button>
+  </div>
   <div class="iphone">
     <div class="screen">
       <div class="island"></div>
@@ -256,8 +264,9 @@ if (document.fonts && document.fonts.ready) {
   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const now=()=>{ const d=new Date(); let h=d.getHours(),m=d.getMinutes(); const ap=h>=12?'PM':'AM'; h=h%12||12; return `${h}:${String(m).padStart(2,'0')} ${ap}`; };
-  const SPEED=1.4;   // >1 = slower playback (applies to typing + every pause)
-  const sleep=ms=>new Promise(r=>setTimeout(r, reduce?Math.min(ms,300):ms*SPEED));
+  const SPEED=3.5;   // >1 = slower playback (applies to typing + every pause). Tune this one number.
+  let runToken=0;    // bumped on every (re)play; stale timelines abort at their next pause
+  const sleep=ms=>new Promise((res,rej)=>{ const t=runToken; setTimeout(()=> t===runToken?res():rej('abort'), reduce?Math.min(ms,300):ms*SPEED); });
   const scroll=()=>{ chat.scrollTop=chat.scrollHeight; };
 
   const pizzaCard=
@@ -332,6 +341,56 @@ Commands:
 📺 Watch how Awzsome works:
 awzsome.com/guide`;
 
+  // ── vendor side ──
+  const vendorIntro=
+`Happy to list your deal — it is free.
+
+First, please message from the number on your Google Business listing — that is how we confirm the deal is really from your business.`;
+
+  const askOffer=
+`Great. Send your offer in one line — what it is and the price.
+
+For example: Large take-and-bake pizza $12 (was $18).`;
+
+  const confirmCard=
+`Please check your deal:
+
+Business: Tony's Pizzeria
+Category: Restaurant
+Location: 312 Daniels St, Manteca, CA
+Phone: (209) 555-0142
+
+Offer: Large take-and-bake pizza for $12
+  Price: $12 (was $18)
+  Code: AWZM-TONY-8F3K
+
+Deals on Awzsome run for up to 2 weeks from listing. This runs through Aug 8 unless marked to end early, then comes off automatically.
+Approving confirms you accept that.
+
+Listing in Manteca is free.`;
+
+  const submittedMsg=
+`Thank you — your deal has been submitted for review.
+
+Once approved it will show to customers within 1 hour and run for up to 2 weeks. We will message you if there is any issue.
+
+Your deal code is AWZM-TONY-8F3K
+
+Customers show this at your counter. You do not need to record anything — just apply the discount.
+
+Reply STATS any time to see your numbers, or REVOKE to pull a deal early. Listing in Manteca is free.`;
+
+  const reserveNote=
+`New Awzsome reservation
+
+Large take-and-bake pizza for $12
+Name: John
+How many: 2
+When: today 6pm
+Code: AWZM-TONY-8F3K
+
+Customer pays you directly at the store.`;
+
   function setCaption(html){ captionEl.style.opacity=0; setTimeout(()=>{ captionEl.innerHTML=html; captionEl.style.opacity=1; },200); }
   function bubble(side,text){ const row=document.createElement('div'); row.className='row '+side;
     const b=document.createElement('div'); b.className='bubble'; b.textContent=text;
@@ -375,9 +434,7 @@ awzsome.com/guide`;
     await sleep(opts.hold||1600); return b;
   }
 
-  async function run(){
-    chat.innerHTML=''; endcard.classList.remove('show'); prog.style.width='0'; field.innerHTML='<span class="ph">Message</span>';
-
+  async function runConsumer(){
     // ── one complete request, end to end (find → claim → reserve) ──
     setCaption('Message <span class="accent">Awzsome</span> on WhatsApp'); await sleep(1200);
     bubble('in', "👋 Welcome to Awzsome — verified deals from businesses near you.\nShare your location so I can show what's live in your city."); await sleep(1700);
@@ -401,11 +458,9 @@ awzsome.com/guide`;
     setCaption('Confirm — and you\u2019re booked');
     await turn('YES', reserved, { think:1200, hold:3000 });
 
-    // ── salon deals ──
     setCaption('Works for services too — <span class="accent">"salon offers"</span>');
     await turn('salon offers', salonCard, { think:1200, buttons:['Claim a deal'], hold:2600 });
 
-    // ── HELP ──
     setCaption('Type <span class="accent">HELP</span> to see everything you can do');
     await typeInto('HELP'); bubble('out','HELP'); await sleep(500);
     await typingDots(1200); const hb=helpBubble(helpText); await sleep(1000);
@@ -418,10 +473,73 @@ awzsome.com/guide`;
     endcard.classList.add('show'); await sleep(3600);
   }
 
-  let raf,start; const RUN_MS=82000*1.4;
+  async function runVendor(){
+    setCaption('Own a local business? List your deals <span class="accent">free</span> on WhatsApp'); await sleep(1600);
+
+    setCaption('Just message Awzsome and say you want to list a deal');
+    await typeInto('I have a store and want to list a deal or offer');
+    bubble('out', 'I have a store and want to list a deal or offer'); await sleep(600);
+
+    setCaption('First reply: submit from your <span class="accent">Google Business</span> number');
+    await typingDots(1300); bubble('in', vendorIntro); await sleep(3800);
+
+    setCaption('Then just describe your offer — no forms, no dates');
+    await typingDots(1200); bubble('in', askOffer); await sleep(2800);
+
+    await typeInto("Tony's Pizzeria — large take-and-bake pizza $12, was $18");
+    bubble('out', "Tony's Pizzeria — large take-and-bake pizza $12, was $18"); await sleep(600);
+
+    setCaption('Awzsome reads your offer back to check');
+    await typingDots(1400); bubble('in', confirmCard); buttons(['Approve','Reject']); await sleep(4400);
+
+    setCaption('A 2-week window is set automatically — you never enter dates'); await sleep(2600);
+
+    setCaption('Tap <span class="accent">Approve</span> to submit');
+    chat.querySelectorAll('.wbtn')[0].classList.add('tapped'); await sleep(900);
+    bubble('out','Approve'); await sleep(500);
+    await typingDots(1300); bubble('in', submittedMsg); await sleep(4400);
+
+    setCaption('A quick review — then it\u2019s live within the hour'); await sleep(2600);
+
+    setCaption('When a customer reserves, you\u2019re notified');
+    await typingDots(1300); bubble('in', reserveNote); await sleep(3800);
+
+    setCaption('List free. Get discovered. Fill your tables.');
+    endcard.classList.add('show'); await sleep(3800);
+  }
+
+  // ── player + tabs ──
+  let raf,start,RUN_MS=300000,activeMode='consumer';
   function tick(t){ if(!start)start=t; const p=Math.min(1,(t-start)/RUN_MS); prog.style.width=(p*100)+'%'; if(p<1) raf=requestAnimationFrame(tick); }
-  async function play(){ cancelAnimationFrame(raf); start=0; prog.style.width='0'; if(!reduce) raf=requestAnimationFrame(tick); await run(); prog.style.width='100%'; await sleep(1600); play(); }
-  replay.addEventListener('click', play); play();
+  const segs=Array.prototype.slice.call(document.querySelectorAll('.seg'));
+  function setActiveTab(mode){ segs.forEach(function(b){ b.classList.toggle('active', b.dataset.mode===mode); }); }
+
+  async function play(mode){
+    activeMode=mode;
+    runToken++; const myToken=runToken;         // aborts any running timeline at its next pause
+    setActiveTab(mode);
+    chat.innerHTML=''; endcard.classList.remove('show'); prog.style.width='0';
+    field.innerHTML='<span class="ph">Message</span>'; statusEl.textContent='online';
+    cancelAnimationFrame(raf); start=0;
+    RUN_MS = (mode==='business' ? 93000 : 82000) * SPEED;
+    if(!reduce) raf=requestAnimationFrame(tick);
+    try { if(mode==='business') await runVendor(); else await runConsumer(); }
+    catch(e){ if(e!=='abort') console.error(e); return; }
+    if(myToken!==runToken) return;
+    prog.style.width='100%';
+    try { await sleep(1600); } catch(e){ return; }
+    if(myToken===runToken) play(mode);
+  }
+
+  segs.forEach(function(b){ b.addEventListener('click', function(){
+    const m=b.dataset.mode;
+    history.replaceState(null,'', m==='business' ? '#business' : location.pathname);
+    play(m);
+  }); });
+  replay.addEventListener('click', function(){ play(activeMode); });
+
+  const startMode = (location.hash||'').toLowerCase().indexOf('business')>=0 ? 'business' : 'consumer';
+  play(startMode);
 })();
 </script>
 </body>
