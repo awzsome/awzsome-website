@@ -264,7 +264,7 @@ if (document.fonts && document.fonts.ready) {
   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const now=()=>{ const d=new Date(); let h=d.getHours(),m=d.getMinutes(); const ap=h>=12?'PM':'AM'; h=h%12||12; return `${h}:${String(m).padStart(2,'0')} ${ap}`; };
-  const SPEED=2.2;   // >1 = slower playback (applies to typing + every pause). Tune this one number.
+  const SPEED=1.8;   // >1 = slower playback (applies to typing + every pause). Tune this one number.
   let runToken=0;    // bumped on every (re)play; stale timelines abort at their next pause
   const sleep=ms=>new Promise((res,rej)=>{ const t=runToken; setTimeout(()=> t===runToken?res():rej('abort'), reduce?Math.min(ms,300):ms*SPEED); });
   const scroll=()=>{ chat.scrollTop=chat.scrollHeight; };
