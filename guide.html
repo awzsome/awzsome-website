@@ -345,12 +345,9 @@ awzsome.com/guide`;
   const vendorIntro=
 `Happy to list your deal — it is free.
 
-First, please message from the number on your Google Business listing — that is how we confirm the deal is really from your business.`;
+First, please message from the number on your Google Business listing — that is how we confirm the deal is really from your business.
 
-  const askOffer=
-`Great. Send your offer in one line — what it is and the price.
-
-For example: Large take-and-bake pizza $12 (was $18).`;
+Now send your offer in one line, with the price — for example: Large take-and-bake pizza $12 (was $18).`;
 
   const confirmCard=
 `Please check your deal:
@@ -482,11 +479,8 @@ Customer pays you directly at the store.`;
     await typeInto('I have a store and want to list a deal or offer');
     bubble('out', 'I have a store and want to list a deal or offer'); await sleep(600);
 
-    setCaption('First reply: submit from your <span class="accent">Google Business</span> number');
-    await typingDots(1300); bubble('in', vendorIntro); await sleep(3800);
-
-    setCaption('Then just describe your offer — no forms, no dates');
-    await typingDots(1200); bubble('in', askOffer); await sleep(2800);
+    setCaption('One reply: use your <span class="accent">Google Business</span> number, then send the offer');
+    await typingDots(1300); bubble('in', vendorIntro); await sleep(4600);
 
     await typeInto("Tony's Pizzeria — large take-and-bake pizza $12, was $18");
     bubble('out', "Tony's Pizzeria — large take-and-bake pizza $12, was $18"); await sleep(600);
@@ -535,7 +529,8 @@ Customer pays you directly at the store.`;
 
   segs.forEach(function(b){ b.addEventListener('click', function(){
     const m=b.dataset.mode;
-    history.replaceState(null,'', m==='business' ? '#business' : location.pathname);
+    try { history.replaceState(null,'', m==='business' ? '#business' : location.pathname); }
+    catch(e){ /* some sandboxes block URL changes; the tab still switches, so ignore */ }
     play(m);
   }); });
   replay.addEventListener('click', function(){ play(activeMode); });
