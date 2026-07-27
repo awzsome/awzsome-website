@@ -436,7 +436,9 @@ Customer pays you directly at the store.`;
 
   async function runConsumer(){
     // ── one complete request, end to end (find → claim → reserve) ──
-    setCaption('Message <span class="accent">Awzsome</span> on WhatsApp'); await sleep(1200);
+    setCaption('Just message <span class="accent">Awzsome</span> to get started');
+    await typeInto('Hi'); bubble('out','Hi'); await sleep(600);
+    await typingDots(1200);
     bubble('in', "👋 Welcome to Awzsome — verified deals from businesses near you.\nShare your location so I can show what's live in your city."); await sleep(1700);
 
     setCaption('Share your location once'); locationPill(); await sleep(1000);
