@@ -39,13 +39,30 @@ nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop
 .status{font-size:.9375rem;color:var(--ink2);min-height:1.5rem}
 .status.err{color:var(--blue-dk);font-weight:600}
 
-.dash{display:none;max-width:400px;width:100%;text-align:center}
+.dash{display:none;max-width:1100px;width:100%;margin:0 auto}
 .dash.show{display:block}
-.dash .who{font-size:1.0625rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
-.dash .role{display:inline-block;background:var(--blue-lt);color:var(--blue-dk);font-size:.8125rem;font-weight:700;padding:.25rem .75rem;border-radius:100px;margin-bottom:1.5rem}
-.dash .note{font-size:.9375rem;color:var(--ink3);margin-bottom:1.5rem;line-height:1.6}
+.dash-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.75rem}
+.dash-who{display:flex;align-items:center;gap:.75rem}
+.dash-who .email{font-weight:700;font-size:1rem;color:var(--ink)}
+.role{display:inline-block;background:var(--blue-lt);color:var(--blue-dk);font-size:.8125rem;font-weight:700;padding:.25rem .75rem;border-radius:100px}
+.dash-controls{display:flex;align-items:center;gap:.75rem}
+.win-select{font-family:var(--font);font-size:.9375rem;font-weight:600;color:var(--ink);background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:.5rem .75rem}
 .signout{display:inline-block;color:var(--ink2);font-size:.9375rem;font-weight:600;text-decoration:none;border:1.5px solid var(--border);border-radius:var(--r);padding:.5rem 1.25rem;transition:border-color .15s,color .15s}
 .signout:hover{border-color:var(--blue);color:var(--blue)}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem}
+.stat-card .n{font-size:1.75rem;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.stat-card .lbl{font-size:.8125rem;font-weight:600;color:var(--ink3);margin-top:.25rem}
+
+.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:1.5rem}
+.panel h2{font-size:1.0625rem;font-weight:700;margin-bottom:1rem;color:var(--ink)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:.8125rem;font-weight:700;color:var(--ink3);padding:.5rem .5rem;border-bottom:1px solid var(--border)}
+td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px solid var(--surface)}
+.empty-note{font-size:.9375rem;color:var(--ink3);padding:.5rem}
+.dash-status{font-size:.9375rem;color:var(--ink3);margin-bottom:1rem}
+.dash-status.err{color:var(--blue-dk);font-weight:600}
 </style>
 <canvas id="logo-m" style="display:none;position:absolute;top:-9999px"></canvas>
 </head>
@@ -64,11 +81,54 @@ nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop
   </div>
 
   <div class="dash" id="dash-card">
-    <div class="card">
-      <div class="who" id="who-email"></div>
-      <div class="role" id="who-role"></div>
-      <p class="note">Signed in successfully. The full dashboard (stats, vendor approvals, and reports) is coming in the next phase — this confirms your login is working end to end.</p>
-      <a href="#" class="signout" id="signout-link">Sign out</a>
+    <div class="dash-top">
+      <div class="dash-who">
+        <span class="email" id="who-email"></span>
+        <span class="role" id="who-role"></span>
+      </div>
+      <div class="dash-controls">
+        <select class="win-select" id="win-select">
+          <option value="1">Last 1 minute</option>
+          <option value="60">Last 1 hour</option>
+          <option value="1440">Last 1 day</option>
+          <option value="10080" selected>Last 1 week</option>
+          <option value="20160">Last 2 weeks</option>
+          <option value="30240">Last 3 weeks</option>
+          <option value="43200">Last 1 month</option>
+        </select>
+        <a href="#" class="signout" id="signout-link">Sign out</a>
+      </div>
+    </div>
+
+    <div class="dash-status" id="dash-status"></div>
+
+    <div class="stat-grid" id="stat-grid"></div>
+
+    <div class="panel">
+      <h2>By category</h2>
+      <table id="cat-table">
+        <thead><tr><th>Category</th><th>Searches</th><th>Deals viewed</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="empty-note" id="cat-empty" style="display:none">No search activity in this window.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Zero-result searches</h2>
+      <table id="zero-table">
+        <thead><tr><th>Query</th><th>City</th><th>Category</th><th>When</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="empty-note" id="zero-empty" style="display:none">No zero-result searches in this window.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Trend (searches vs. claims)</h2>
+      <table id="trend-table">
+        <thead><tr><th>Time</th><th>Searches</th><th>Claims</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="empty-note" id="trend-empty" style="display:none">No activity to chart in this window.</div>
     </div>
   </div>
 </div>
@@ -195,12 +255,38 @@ nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop
   const statusEl   = document.getElementById('status');
   const signinCard = document.getElementById('signin-card');
   const dashCard   = document.getElementById('dash-card');
+  const dashStatus = document.getElementById('dash-status');
+  const winSelect  = document.getElementById('win-select');
+
+  // Human-readable labels for the raw event_type keys the API returns.
+  const STAT_LABELS = {
+    search_performed:            'Searches',
+    search_zero_results:         'Zero-result searches',
+    deal_viewed:                 'Deals viewed',
+    deal_claimed:                'Deals claimed',
+    redemption_confirmed:        'Redemptions confirmed',
+    vendor_submission_started:   'Vendor submissions started',
+    vendor_submission_completed: 'Vendor submissions completed',
+    vendor_submission_abandoned: 'Vendor submissions abandoned',
+    deal_approved:               'Deals approved',
+    deal_rejected:               'Deals rejected',
+    share_created:                'Shares created',
+    share_arrival:                'Arrivals from a share',
+  };
+  // Order matters more than completeness — these show first, as cards; any
+  // event type not listed here still gets counted but not carded individually.
+  const STAT_ORDER = [
+    'search_performed', 'search_zero_results', 'deal_viewed', 'deal_claimed',
+    'redemption_confirmed', 'vendor_submission_started', 'vendor_submission_completed',
+    'vendor_submission_abandoned', 'deal_approved', 'deal_rejected',
+  ];
 
   function showSignedIn(email, role) {
     document.getElementById('who-email').textContent = email;
     document.getElementById('who-role').textContent = role;
     signinCard.style.display = 'none';
     dashCard.classList.add('show');
+    loadDashboard();
   }
 
   async function handleCredentialResponse(response) {
@@ -228,6 +314,112 @@ nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop
   }
   window.handleCredentialResponse = handleCredentialResponse;
 
+  function signOut() {
+    localStorage.removeItem('awzsome_admin_token');
+    dashCard.classList.remove('show');
+    signinCard.style.display = '';
+  }
+
+  // Wraps fetch with the stored token; if the server says the session is no
+  // longer valid (expired, or revoked by removing the admin_users row), sign
+  // out cleanly instead of showing a confusing half-broken dashboard.
+  async function authFetch(path) {
+    const token = localStorage.getItem('awzsome_admin_token');
+    const r = await fetch(API_BASE + path, { headers: { Authorization: 'Bearer ' + token } });
+    if (r.status === 401) { signOut(); throw new Error('session expired'); }
+    if (!r.ok) throw new Error('request failed: ' + path);
+    return r.json();
+  }
+
+  function fmtTime(iso, bucketMinutes) {
+    const d = new Date(iso);
+    return bucketMinutes >= 1440
+      ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+      : d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderStatCards(overview) {
+    const grid = document.getElementById('stat-grid');
+    grid.innerHTML = '';
+    const cards = [{ n: overview.active_users, lbl: 'Active users' }];
+    for (const key of STAT_ORDER) {
+      cards.push({ n: overview.counts[key] || 0, lbl: STAT_LABELS[key] || key });
+    }
+    for (const c of cards) {
+      const div = document.createElement('div');
+      div.className = 'stat-card';
+      div.innerHTML = '<div class="n">' + c.n + '</div><div class="lbl">' + c.lbl + '</div>';
+      grid.appendChild(div);
+    }
+  }
+
+  function renderCategories(data) {
+    const tbody = document.querySelector('#cat-table tbody');
+    const empty = document.getElementById('cat-empty');
+    tbody.innerHTML = '';
+    if (!data.categories.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    for (const c of data.categories) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (c.category || 'unknown') + '</td><td>' + c.searches + '</td><td>' + c.views + '</td>';
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderZeroResults(data) {
+    const tbody = document.querySelector('#zero-table tbody');
+    const empty = document.getElementById('zero-empty');
+    tbody.innerHTML = '';
+    if (!data.results.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    for (const r of data.results) {
+      const tr = document.createElement('tr');
+      const when = new Date(r.at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      tr.innerHTML = '<td>' + (r.query || '—') + '</td><td>' + (r.city || '—') + '</td><td>' + (r.category || '—') + '</td><td>' + when + '</td>';
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderTrend(data) {
+    const tbody = document.querySelector('#trend-table tbody');
+    const empty = document.getElementById('trend-empty');
+    tbody.innerHTML = '';
+    if (!data.points.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    for (const p of data.points) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + fmtTime(p.t, data.bucket_minutes) + '</td><td>' + p.search_performed + '</td><td>' + p.deal_claimed + '</td>';
+      tbody.appendChild(tr);
+    }
+  }
+
+  async function loadDashboard() {
+    const minutes = winSelect.value;
+    dashStatus.textContent = 'Loading...';
+    dashStatus.classList.remove('err');
+    try {
+      const [overview, categories, zero, trend] = await Promise.all([
+        authFetch('/admin/stats/overview?minutes=' + minutes),
+        authFetch('/admin/stats/categories?minutes=' + minutes),
+        authFetch('/admin/stats/zero-results?minutes=' + minutes),
+        authFetch('/admin/stats/timeseries?minutes=' + minutes),
+      ]);
+      renderStatCards(overview);
+      renderCategories(categories);
+      renderZeroResults(zero);
+      renderTrend(trend);
+      dashStatus.textContent = overview.truncated
+        ? 'Showing the most recent 5,000 events in this window — actual totals may be higher.'
+        : '';
+    } catch (e) {
+      if (e.message !== 'session expired') {
+        dashStatus.textContent = 'Could not load stats. Try refreshing.';
+        dashStatus.classList.add('err');
+      }
+    }
+  }
+  winSelect.addEventListener('change', loadDashboard);
+
   // If a session token is already stored, confirm it is still valid before
   // asking the person to sign in again.
   async function tryExistingSession() {
@@ -248,9 +440,7 @@ nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop
 
   document.getElementById('signout-link').addEventListener('click', function(e){
     e.preventDefault();
-    localStorage.removeItem('awzsome_admin_token');
-    dashCard.classList.remove('show');
-    signinCard.style.display = '';
+    signOut();
   });
 
   window.addEventListener('load', async function(){
