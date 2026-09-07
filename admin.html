@@ -23,6 +23,15 @@
   --font:    'Plus Jakarta Sans', sans-serif;
   --r:       12px;
   --rxl:     28px;
+  /* Dashboard-only semantic colors, kept in the same warm palette as the
+     brand coral rather than introducing an unrelated blue/green tech-dashboard
+     look. --good/--warn are used sparingly, as accents, not backgrounds. */
+  --good:    #16A34A;
+  --good-lt: #F0FDF4;
+  --warn:    #D97706;
+  --warn-lt: #FFFBEB;
+  --chart-a: #E85D35;
+  --chart-b: #16A34A;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-font-smoothing:antialiased}
@@ -51,7 +60,10 @@ nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop
 .signout:hover{border-color:var(--blue);color:var(--blue)}
 
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem}
+.stat-card{background:var(--white);border:1px solid var(--border);border-top:3px solid var(--border);border-radius:var(--r);padding:1.25rem}
+.stat-card.neutral{border-top-color:var(--blue)}
+.stat-card.good{border-top-color:var(--good);background:var(--good-lt)}
+.stat-card.warn{border-top-color:var(--warn);background:var(--warn-lt)}
 .stat-card .n{font-size:1.75rem;font-weight:800;color:var(--ink);letter-spacing:-.02em}
 .stat-card .lbl{font-size:.8125rem;font-weight:600;color:var(--ink3);margin-top:.25rem}
 
@@ -63,6 +75,21 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
 .empty-note{font-size:.9375rem;color:var(--ink3);padding:.5rem}
 .dash-status{font-size:.9375rem;color:var(--ink3);margin-bottom:1rem}
 .dash-status.err{color:var(--blue-dk);font-weight:600}
+
+/* Inline bar visualization inside the category table — a colored track sized
+   relative to the largest value in the current window, next to the number. */
+.bar-cell{display:flex;align-items:center;gap:.625rem}
+.bar-track{flex:1;height:8px;background:var(--surface);border-radius:100px;overflow:hidden;max-width:160px}
+.bar-fill{height:100%;border-radius:100px}
+.bar-fill.a{background:var(--chart-a)}
+.bar-fill.b{background:var(--chart-b)}
+.bar-num{font-weight:700;color:var(--ink);min-width:1.5rem;text-align:right}
+
+.chart-legend{display:flex;gap:1.5rem;margin-bottom:1rem;font-size:.875rem;font-weight:600;color:var(--ink2)}
+.chart-legend span{display:inline-flex;align-items:center;gap:.4rem}
+.chart-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.chart-legend i.a{background:var(--chart-a)}
+.chart-legend i.b{background:var(--chart-b)}
 </style>
 <canvas id="logo-m" style="display:none;position:absolute;top:-9999px"></canvas>
 </head>
@@ -123,11 +150,12 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     </div>
 
     <div class="panel">
-      <h2>Trend (searches vs. claims)</h2>
-      <table id="trend-table">
-        <thead><tr><th>Time</th><th>Searches</th><th>Claims</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <h2>Trend</h2>
+      <div class="chart-legend">
+        <span><i class="a"></i>Searches</span>
+        <span><i class="b"></i>Claims</span>
+      </div>
+      <div id="trend-chart"></div>
       <div class="empty-note" id="trend-empty" style="display:none">No activity to chart in this window.</div>
     </div>
   </div>
@@ -258,20 +286,22 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
   const dashStatus = document.getElementById('dash-status');
   const winSelect  = document.getElementById('win-select');
 
-  // Human-readable labels for the raw event_type keys the API returns.
-  const STAT_LABELS = {
-    search_performed:            'Searches',
-    search_zero_results:         'Zero-result searches',
-    deal_viewed:                 'Deals viewed',
-    deal_claimed:                'Deals claimed',
-    redemption_confirmed:        'Redemptions confirmed',
-    vendor_submission_started:   'Vendor submissions started',
-    vendor_submission_completed: 'Vendor submissions completed',
-    vendor_submission_abandoned: 'Vendor submissions abandoned',
-    deal_approved:               'Deals approved',
-    deal_rejected:               'Deals rejected',
-    share_created:                'Shares created',
-    share_arrival:                'Arrivals from a share',
+  // Each stat's display label and color category:
+  // 'neutral' (coral) = volume/activity, 'good' (green) = a positive outcome,
+  // 'warn' (amber) = something worth a closer look, not necessarily bad.
+  const STAT_META = {
+    search_performed:            { lbl: 'Searches',                     kind: 'neutral' },
+    search_zero_results:         { lbl: 'Zero-result searches',         kind: 'warn'    },
+    deal_viewed:                 { lbl: 'Deals viewed',                 kind: 'neutral' },
+    deal_claimed:                { lbl: 'Deals claimed',                kind: 'good'    },
+    redemption_confirmed:        { lbl: 'Redemptions confirmed',        kind: 'good'    },
+    vendor_submission_started:   { lbl: 'Vendor submissions started',   kind: 'neutral' },
+    vendor_submission_completed: { lbl: 'Vendor submissions completed', kind: 'good'    },
+    vendor_submission_abandoned: { lbl: 'Vendor submissions abandoned', kind: 'warn'    },
+    deal_approved:               { lbl: 'Deals approved',               kind: 'good'    },
+    deal_rejected:               { lbl: 'Deals rejected',               kind: 'warn'    },
+    share_created:                { lbl: 'Shares created',              kind: 'neutral' },
+    share_arrival:                { lbl: 'Arrivals from a share',       kind: 'neutral' },
   };
   // Order matters more than completeness — these show first, as cards; any
   // event type not listed here still gets counted but not carded individually.
@@ -341,27 +371,39 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
   function renderStatCards(overview) {
     const grid = document.getElementById('stat-grid');
     grid.innerHTML = '';
-    const cards = [{ n: overview.active_users, lbl: 'Active users' }];
+    const cards = [{ n: overview.active_users, lbl: 'Active users', kind: 'neutral' }];
     for (const key of STAT_ORDER) {
-      cards.push({ n: overview.counts[key] || 0, lbl: STAT_LABELS[key] || key });
+      const meta = STAT_META[key] || { lbl: key, kind: 'neutral' };
+      cards.push({ n: overview.counts[key] || 0, lbl: meta.lbl, kind: meta.kind });
     }
     for (const c of cards) {
       const div = document.createElement('div');
-      div.className = 'stat-card';
+      div.className = 'stat-card ' + c.kind;
       div.innerHTML = '<div class="n">' + c.n + '</div><div class="lbl">' + c.lbl + '</div>';
       grid.appendChild(div);
     }
   }
 
+  // Bar length is relative to the largest single value across BOTH columns,
+  // so a category's search bar and view bar stay visually comparable to
+  // every other category's, not just to each other within one row.
   function renderCategories(data) {
     const tbody = document.querySelector('#cat-table tbody');
     const empty = document.getElementById('cat-empty');
     tbody.innerHTML = '';
     if (!data.categories.length) { empty.style.display = ''; return; }
     empty.style.display = 'none';
+    const max = Math.max(1, ...data.categories.flatMap(c => [c.searches, c.views]));
     for (const c of data.categories) {
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (c.category || 'unknown') + '</td><td>' + c.searches + '</td><td>' + c.views + '</td>';
+      const sPct = Math.round((c.searches / max) * 100);
+      const vPct = Math.round((c.views / max) * 100);
+      tr.innerHTML =
+        '<td>' + (c.category || 'unknown') + '</td>' +
+        '<td><div class="bar-cell"><span class="bar-num">' + c.searches + '</span>' +
+          '<div class="bar-track"><div class="bar-fill a" style="width:' + sPct + '%"></div></div></div></td>' +
+        '<td><div class="bar-cell"><span class="bar-num">' + c.views + '</span>' +
+          '<div class="bar-track"><div class="bar-fill b" style="width:' + vPct + '%"></div></div></div></td>';
       tbody.appendChild(tr);
     }
   }
@@ -380,17 +422,89 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     }
   }
 
+  // Hand-drawn grouped-bar SVG chart — same lightweight approach as the logo,
+  // no charting library needed for two series over up to ~30 buckets.
+  const NS = 'http://www.w3.org/2000/svg';
+  const rootStyle = getComputedStyle(document.documentElement);
+  const CHART_A = rootStyle.getPropertyValue('--chart-a').trim() || '#E85D35';
+  const CHART_B = rootStyle.getPropertyValue('--chart-b').trim() || '#16A34A';
   function renderTrend(data) {
-    const tbody = document.querySelector('#trend-table tbody');
+    const host  = document.getElementById('trend-chart');
     const empty = document.getElementById('trend-empty');
-    tbody.innerHTML = '';
+    host.innerHTML = '';
     if (!data.points.length) { empty.style.display = ''; return; }
     empty.style.display = 'none';
-    for (const p of data.points) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + fmtTime(p.t, data.bucket_minutes) + '</td><td>' + p.search_performed + '</td><td>' + p.deal_claimed + '</td>';
-      tbody.appendChild(tr);
+
+    const W = Math.max(600, host.clientWidth || 600);
+    const H = 220;
+    const padL = 32, padB = 28, padT = 12, padR = 12;
+    const plotW = W - padL - padR;
+    const plotH = H - padT - padB;
+    const n = data.points.length;
+    const maxVal = Math.max(1, ...data.points.flatMap(p => [p.search_performed, p.deal_claimed]));
+
+    const groupW = plotW / n;
+    const barW = Math.max(2, Math.min(18, groupW * 0.32));
+    const gap = Math.max(1, groupW * 0.06);
+
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', H);
+
+    // Baseline
+    const base = document.createElementNS(NS, 'line');
+    base.setAttribute('x1', padL); base.setAttribute('x2', W - padR);
+    base.setAttribute('y1', H - padB); base.setAttribute('y2', H - padB);
+    base.setAttribute('stroke', '#E7E5E4'); base.setAttribute('stroke-width', '1');
+    svg.appendChild(base);
+
+    // A handful of horizontal gridlines with value labels, evenly spaced.
+    const gridSteps = 4;
+    for (let i = 0; i <= gridSteps; i++) {
+      const val = Math.round((maxVal / gridSteps) * i);
+      const y = H - padB - (plotH * (i / gridSteps));
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', padL - 8); t.setAttribute('y', y + 3);
+      t.setAttribute('text-anchor', 'end'); t.setAttribute('font-size', '10');
+      t.setAttribute('fill', '#78716C'); t.setAttribute('font-family', "'Plus Jakarta Sans',sans-serif");
+      t.textContent = val;
+      svg.appendChild(t);
     }
+
+    data.points.forEach((p, i) => {
+      const gx = padL + i * groupW;
+      const sH = (p.search_performed / maxVal) * plotH;
+      const cH = (p.deal_claimed / maxVal) * plotH;
+
+      const rectA = document.createElementNS(NS, 'rect');
+      rectA.setAttribute('x', gx + groupW/2 - barW - gap/2);
+      rectA.setAttribute('y', H - padB - sH);
+      rectA.setAttribute('width', barW); rectA.setAttribute('height', sH);
+      rectA.setAttribute('rx', 2); rectA.setAttribute('fill', CHART_A);
+      svg.appendChild(rectA);
+
+      const rectB = document.createElementNS(NS, 'rect');
+      rectB.setAttribute('x', gx + groupW/2 + gap/2);
+      rectB.setAttribute('y', H - padB - cH);
+      rectB.setAttribute('width', barW); rectB.setAttribute('height', cH);
+      rectB.setAttribute('rx', 2); rectB.setAttribute('fill', CHART_B);
+      svg.appendChild(rectB);
+
+      // Label every bucket if there is room, otherwise thin them out so
+      // labels never overlap on a wide window with many buckets.
+      const showEvery = Math.max(1, Math.ceil(n / (W / 60)));
+      if (i % showEvery === 0) {
+        const t = document.createElementNS(NS, 'text');
+        t.setAttribute('x', gx + groupW/2); t.setAttribute('y', H - padB + 16);
+        t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '10');
+        t.setAttribute('fill', '#78716C'); t.setAttribute('font-family', "'Plus Jakarta Sans',sans-serif");
+        t.textContent = fmtTime(p.t, data.bucket_minutes);
+        svg.appendChild(t);
+      }
+    });
+
+    host.appendChild(svg);
   }
 
   async function loadDashboard() {
