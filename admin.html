@@ -47,6 +47,14 @@ nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop
 .gbtn-slot{display:flex;justify-content:center;margin-bottom:1.25rem}
 .status{font-size:.9375rem;color:var(--ink2);min-height:1.5rem}
 .status.err{color:var(--blue-dk);font-weight:600}
+.btn-primary{width:100%;font-family:var(--font);font-size:.9375rem;font-weight:700;color:var(--white);background:var(--blue);border:none;border-radius:var(--r);padding:.75rem 1rem;cursor:pointer;transition:background .15s}
+.btn-primary:hover{background:var(--blue-dk)}
+.btn-primary:disabled{opacity:.6;cursor:default}
+.req-actions{display:flex;gap:.5rem}
+.btn-sm{padding:.35rem .75rem;font-size:.8125rem;border-radius:8px;font-weight:700;cursor:pointer;border:none;font-family:var(--font)}
+.btn-sm.approve{background:var(--good);color:var(--white)}
+.btn-sm.reject{background:var(--warn-lt);color:var(--warn);border:1px solid var(--warn)}
+.btn-sm:disabled{opacity:.5;cursor:default}
 
 .dash{display:none;max-width:1320px;width:100%;margin:0 auto}
 .dash.show{display:block}
@@ -78,6 +86,8 @@ nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop
 .panel h2{font-size:1.0625rem;font-weight:700;margin-bottom:.25rem;color:var(--ink)}
 .panel .sub{font-size:.8125rem;color:var(--ink3);margin-bottom:1rem}
 table{width:100%;border-collapse:collapse}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap table{min-width:480px}
 th{text-align:left;font-size:.8125rem;font-weight:700;color:var(--ink3);padding:.5rem .5rem;border-bottom:1px solid var(--border)}
 td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px solid var(--surface)}
 .empty-note{font-size:.9375rem;color:var(--ink3);padding:.5rem}
@@ -119,6 +129,34 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
 
 /* Demand gap table: count intensity via a filled amber background swatch */
 .gap-count{display:inline-flex;align-items:center;justify-content:center;min-width:2rem;padding:.2rem .5rem;border-radius:6px;font-weight:700;background:var(--warn-lt);color:var(--warn)}
+/* ── Mobile (phones and small tablets) ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  nav{padding:0 16px}
+  .wrap{padding:16px}
+  .card{padding:2rem 1.5rem}
+
+  .dash-top{gap:.75rem}
+  .dash-who{flex-wrap:wrap}
+
+  /* Sidebar drops above the content and stops being sticky — on a phone,
+     a pinned sidebar just eats permanent screen space you can't get back. */
+  .dash-layout{flex-direction:column;gap:1rem}
+  .sidebar{width:100%;position:static;padding:1rem}
+  .sidebar h3{margin-top:1rem}
+
+  .panel{padding:1.125rem}
+  .stat-grid{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.625rem}
+  .stat-card{padding:1rem}
+  .stat-card .n{font-size:1.5rem}
+
+  /* Funnel rows: the fixed label/track/percent row is too wide for a phone —
+     stack the label above its bar instead of squeezing them onto one line. */
+  .funnel-step{flex-direction:column;align-items:stretch;gap:.375rem}
+  .funnel-lbl{width:auto}
+  .funnel-pct{width:auto}
+
+  .chart-legend{flex-wrap:wrap;gap:1rem}
+}
 </style>
 <canvas id="logo-m" style="display:none;position:absolute;top:-9999px"></canvas>
 </head>
@@ -134,6 +172,17 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     <p>Sign in with your authorized Google account to access the Awzsome dashboard.</p>
     <div class="gbtn-slot" id="gbtn-slot"></div>
     <div class="status" id="status"></div>
+
+    <div id="request-section" style="display:none">
+      <div class="status" id="request-status-msg"></div>
+      <div id="request-form" style="display:none;margin-top:1rem">
+        <select id="request-role-select" style="width:100%;font-family:var(--font);font-size:.9375rem;padding:.625rem;border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:.75rem">
+          <option value="viewer">View access</option>
+          <option value="owner">Full access</option>
+        </select>
+        <button id="request-submit-btn" class="btn-primary">Request access</button>
+      </div>
+    </div>
   </div>
 
   <div class="dash" id="dash-card">
@@ -170,35 +219,45 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
       </div>
 
       <div class="main-content">
+        <div class="panel" id="requests-panel" style="display:none">
+          <h2>Access requests</h2>
+          <div class="sub">Visible to owners only. Approve grants access immediately.</div>
+          <div class="table-wrap"><table id="requests-table">
+            <thead><tr><th>Email</th><th>Requesting</th><th>Requested</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div class="empty-note" id="requests-empty" style="display:none">No pending requests.</div>
+        </div>
+
         <div class="stat-grid" id="stat-grid"></div>
 
         <div class="panel">
           <h2>Demand gaps</h2>
           <div class="sub">City + category combinations where searches came back empty — the strongest signal for where to recruit vendors next.</div>
-          <table id="gaps-table">
+          <div class="table-wrap"><table id="gaps-table">
             <thead><tr><th>City</th><th>Category</th><th>Zero-result searches</th></tr></thead>
             <tbody></tbody>
-          </table>
+          </table></div>
           <div class="empty-note" id="gaps-empty" style="display:none">No demand gaps in this window.</div>
         </div>
 
         <div class="panel">
           <h2>By category</h2>
           <div class="sub">Click a row to see its city breakdown.</div>
-          <table id="cat-table">
+          <div class="table-wrap"><table id="cat-table">
             <thead><tr><th></th><th>Category</th><th>Searches</th><th>Deals viewed</th></tr></thead>
             <tbody></tbody>
-          </table>
+          </table></div>
           <div class="empty-note" id="cat-empty" style="display:none">No search activity in this window.</div>
         </div>
 
         <div class="panel">
           <h2>By city</h2>
           <div class="sub">Click a row to see its category breakdown.</div>
-          <table id="city-table">
+          <div class="table-wrap"><table id="city-table">
             <thead><tr><th></th><th>City</th><th>Searches</th><th>Views</th><th>Claims</th><th>Zero-result</th></tr></thead>
             <tbody></tbody>
-          </table>
+          </table></div>
           <div class="empty-note" id="city-empty" style="display:none">No activity in this window.</div>
         </div>
 
@@ -211,10 +270,10 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
 
         <div class="panel">
           <h2>Zero-result searches</h2>
-          <table id="zero-table">
+          <div class="table-wrap"><table id="zero-table">
             <thead><tr><th>Query</th><th>City</th><th>Category</th><th>When</th></tr></thead>
             <tbody></tbody>
-          </table>
+          </table></div>
           <div class="empty-note" id="zero-empty" style="display:none">No zero-result searches in this window.</div>
         </div>
 
@@ -352,13 +411,23 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
   // Replace with your real Client ID if this page is ever copied to a new project.
   const GOOGLE_CLIENT_ID = '639642249618-mq2qd62e9npk3s026rkv1kmuoft7tsg9.apps.googleusercontent.com';
 
-  const statusEl    = document.getElementById('status');
-  const signinCard  = document.getElementById('signin-card');
-  const dashCard    = document.getElementById('dash-card');
-  const dashStatus  = document.getElementById('dash-status');
-  const winSelect   = document.getElementById('win-select');
-  const citySelect  = document.getElementById('city-select');
-  const catSelect   = document.getElementById('cat-select');
+  const statusEl        = document.getElementById('status');
+  const signinCard      = document.getElementById('signin-card');
+  const dashCard        = document.getElementById('dash-card');
+  const dashStatus      = document.getElementById('dash-status');
+  const winSelect       = document.getElementById('win-select');
+  const citySelect      = document.getElementById('city-select');
+  const catSelect       = document.getElementById('cat-select');
+  const requestSection  = document.getElementById('request-section');
+  const requestStatusEl = document.getElementById('request-status-msg');
+  const requestForm     = document.getElementById('request-form');
+  const requestRoleSel  = document.getElementById('request-role-select');
+  const requestSubmit   = document.getElementById('request-submit-btn');
+  const requestsPanel   = document.getElementById('requests-panel');
+
+  // Kept in memory (never stored) so "Request access" can reuse the same
+  // Google credential without asking the person to sign in a second time.
+  let lastCredential = null;
 
   // Each stat's display label and color category:
   // 'neutral' (coral) = volume/activity, 'good' (green) = a positive outcome,
@@ -390,12 +459,36 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     document.getElementById('who-role').textContent = role;
     signinCard.style.display = 'none';
     dashCard.classList.add('show');
+    requestsPanel.style.display = role === 'owner' ? '' : 'none';
     loadFilters().then(loadDashboard);
+    if (role === 'owner') loadRequests();
+  }
+
+  // Shows the right thing under the sign-in button based on what /verify
+  // reported: nothing on file yet (show the request form), a pending
+  // request (just wait), or a declined one (let them try again).
+  function showRequestSection(requestStatus) {
+    requestSection.style.display = '';
+    if (requestStatus === 'pending') {
+      requestStatusEl.textContent = 'Your access request is awaiting approval.';
+      requestStatusEl.classList.remove('err');
+      requestForm.style.display = 'none';
+    } else if (requestStatus === 'rejected') {
+      requestStatusEl.textContent = 'Your previous request was declined. You can request again below.';
+      requestStatusEl.classList.add('err');
+      requestForm.style.display = '';
+    } else {
+      requestStatusEl.textContent = 'No account found for this Google login yet — request access below.';
+      requestStatusEl.classList.remove('err');
+      requestForm.style.display = '';
+    }
   }
 
   async function handleCredentialResponse(response) {
+    lastCredential = response.credential;
     statusEl.textContent = 'Verifying...';
     statusEl.classList.remove('err');
+    requestSection.style.display = 'none';
     try {
       const r = await fetch(API_BASE + '/admin/verify', {
         method: 'POST',
@@ -406,6 +499,7 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
       if (!r.ok) {
         statusEl.textContent = data.error || 'Sign-in failed.';
         statusEl.classList.add('err');
+        if ('requestStatus' in data) showRequestSection(data.requestStatus);
         return;
       }
       localStorage.setItem('awzsome_admin_token', data.token);
@@ -418,6 +512,34 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
   }
   window.handleCredentialResponse = handleCredentialResponse;
 
+  requestSubmit.addEventListener('click', async function(){
+    if (!lastCredential) return;
+    requestSubmit.disabled = true;
+    requestSubmit.textContent = 'Sending...';
+    try {
+      const r = await fetch(API_BASE + '/admin/request-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: lastCredential, requested_role: requestRoleSel.value }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        requestStatusEl.textContent = data.error || 'Could not submit request.';
+        requestStatusEl.classList.add('err');
+      } else {
+        requestStatusEl.textContent = 'Request sent — you will be able to sign in once approved.';
+        requestStatusEl.classList.remove('err');
+        requestForm.style.display = 'none';
+      }
+    } catch (e) {
+      requestStatusEl.textContent = 'Could not reach the server. Please try again.';
+      requestStatusEl.classList.add('err');
+    } finally {
+      requestSubmit.disabled = false;
+      requestSubmit.textContent = 'Request access';
+    }
+  });
+
   function signOut() {
     localStorage.removeItem('awzsome_admin_token');
     dashCard.classList.remove('show');
@@ -427,12 +549,63 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
   // Wraps fetch with the stored token; if the server says the session is no
   // longer valid (expired, or revoked by removing the admin_users row), sign
   // out cleanly instead of showing a confusing half-broken dashboard.
-  async function authFetch(path) {
+  // opts.method/opts.body let this also drive the POST decide action —
+  // every existing GET call site is untouched since opts is optional.
+  async function authFetch(path, opts) {
     const token = localStorage.getItem('awzsome_admin_token');
-    const r = await fetch(API_BASE + path, { headers: { Authorization: 'Bearer ' + token } });
+    const headers = { Authorization: 'Bearer ' + token };
+    if (opts?.body) headers['Content-Type'] = 'application/json';
+    const r = await fetch(API_BASE + path, {
+      method: opts?.method || 'GET',
+      headers,
+      body: opts?.body ? JSON.stringify(opts.body) : undefined,
+    });
     if (r.status === 401) { signOut(); throw new Error('session expired'); }
-    if (!r.ok) throw new Error('request failed: ' + path);
+    if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.error || ('request failed: ' + path)); }
     return r.json();
+  }
+
+  async function loadRequests() {
+    try {
+      const data = await authFetch('/admin/requests?status=pending');
+      renderRequests(data.requests);
+    } catch (e) {
+      if (e.message !== 'session expired') console.error('loadRequests failed:', e);
+    }
+  }
+
+  function renderRequests(requests) {
+    const tbody = document.querySelector('#requests-table tbody');
+    const empty = document.getElementById('requests-empty');
+    tbody.innerHTML = '';
+    if (!requests.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    for (const req of requests) {
+      const tr = document.createElement('tr');
+      const when = new Date(req.requested_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const roleLbl = req.requested_role === 'owner' ? 'Full access' : 'View access';
+      tr.innerHTML = '<td>' + req.email + '</td><td>' + roleLbl + '</td><td>' + when + '</td>';
+      const actionTd = document.createElement('td');
+      actionTd.className = 'req-actions';
+      const approveBtn = document.createElement('button');
+      approveBtn.className = 'btn-sm approve'; approveBtn.textContent = 'Approve';
+      const rejectBtn = document.createElement('button');
+      rejectBtn.className = 'btn-sm reject'; rejectBtn.textContent = 'Reject';
+      [approveBtn, rejectBtn].forEach(btn => btn.addEventListener('click', async () => {
+        approveBtn.disabled = true; rejectBtn.disabled = true;
+        try {
+          await authFetch('/admin/requests/' + req.id + '/decide', { method: 'POST', body: { approve: btn === approveBtn } });
+          loadRequests(); // just refresh the list rather than hand-patch one row
+        } catch (e) {
+          approveBtn.disabled = false; rejectBtn.disabled = false;
+          alert(e.message || 'Could not decide that request.');
+        }
+      }));
+      actionTd.appendChild(approveBtn);
+      actionTd.appendChild(rejectBtn);
+      tr.appendChild(actionTd);
+      tbody.appendChild(tr);
+    }
   }
 
   // Builds the shared ?minutes=&city=&category= query suffix from current
@@ -499,9 +672,9 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     const subTd = document.createElement('td');
     subTd.colSpan = colSpan;
     if (subRows.length) {
-      subTd.innerHTML = '<div class="drill-inner"><table><thead><tr>' +
+      subTd.innerHTML = '<div class="drill-inner"><div class="table-wrap"><table><thead><tr>' +
         subHeaders.map(h => '<th>' + h + '</th>').join('') +
-        '</tr></thead><tbody>' + subRows + '</tbody></table></div>';
+        '</tr></thead><tbody>' + subRows + '</tbody></table></div></div>';
     } else {
       subTd.innerHTML = '<div class="drill-inner">No breakdown available.</div>';
     }
