@@ -48,16 +48,23 @@ nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop
 .status{font-size:.9375rem;color:var(--ink2);min-height:1.5rem}
 .status.err{color:var(--blue-dk);font-weight:600}
 
-.dash{display:none;max-width:1100px;width:100%;margin:0 auto}
+.dash{display:none;max-width:1320px;width:100%;margin:0 auto}
 .dash.show{display:block}
 .dash-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.75rem}
 .dash-who{display:flex;align-items:center;gap:.75rem}
 .dash-who .email{font-weight:700;font-size:1rem;color:var(--ink)}
 .role{display:inline-block;background:var(--blue-lt);color:var(--blue-dk);font-size:.8125rem;font-weight:700;padding:.25rem .75rem;border-radius:100px}
-.dash-controls{display:flex;align-items:center;gap:.75rem}
-.win-select{font-family:var(--font);font-size:.9375rem;font-weight:600;color:var(--ink);background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:.5rem .75rem}
 .signout{display:inline-block;color:var(--ink2);font-size:.9375rem;font-weight:600;text-decoration:none;border:1.5px solid var(--border);border-radius:var(--r);padding:.5rem 1.25rem;transition:border-color .15s,color .15s}
 .signout:hover{border-color:var(--blue);color:var(--blue)}
+
+.dash-layout{display:flex;gap:1.75rem;align-items:flex-start}
+.sidebar{width:220px;flex-shrink:0;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;position:sticky;top:88px}
+.sidebar h3{font-size:.75rem;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem;margin-top:1.25rem}
+.sidebar h3:first-child{margin-top:0}
+.sidebar select{width:100%;font-family:var(--font);font-size:.9375rem;color:var(--ink);padding:.5rem .625rem;border:1.5px solid var(--border);border-radius:var(--r);background:var(--white)}
+.sidebar .reset-link{display:block;text-align:center;margin-top:1.5rem;font-size:.875rem;font-weight:600;color:var(--blue);text-decoration:none;padding-top:1rem;border-top:1px solid var(--border)}
+.sidebar .reset-link:hover{color:var(--blue-dk)}
+.main-content{flex:1;min-width:0}
 
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
 .stat-card{background:var(--white);border:1px solid var(--border);border-top:3px solid var(--border);border-radius:var(--r);padding:1.25rem}
@@ -68,7 +75,8 @@ nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop
 .stat-card .lbl{font-size:.8125rem;font-weight:600;color:var(--ink3);margin-top:.25rem}
 
 .panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:1.5rem}
-.panel h2{font-size:1.0625rem;font-weight:700;margin-bottom:1rem;color:var(--ink)}
+.panel h2{font-size:1.0625rem;font-weight:700;margin-bottom:.25rem;color:var(--ink)}
+.panel .sub{font-size:.8125rem;color:var(--ink3);margin-bottom:1rem}
 table{width:100%;border-collapse:collapse}
 th{text-align:left;font-size:.8125rem;font-weight:700;color:var(--ink3);padding:.5rem .5rem;border-bottom:1px solid var(--border)}
 td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px solid var(--surface)}
@@ -76,8 +84,17 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
 .dash-status{font-size:.9375rem;color:var(--ink3);margin-bottom:1rem}
 .dash-status.err{color:var(--blue-dk);font-weight:600}
 
-/* Inline bar visualization inside the category table — a colored track sized
-   relative to the largest value in the current window, next to the number. */
+/* Drill-down rows: click a category/city row to expand a nested breakdown */
+.drill-row{cursor:pointer}
+.drill-row:hover{background:var(--surface)}
+.drill-icon{display:inline-block;width:1rem;transition:transform .15s;color:var(--ink3)}
+.drill-icon.open{transform:rotate(90deg)}
+.drill-panel td{padding:0;border-bottom:1px solid var(--surface)}
+.drill-inner{padding:.75rem 1.5rem;background:var(--surface)}
+.drill-inner table{background:transparent}
+.drill-inner th, .drill-inner td{padding:.375rem .5rem;font-size:.875rem}
+
+/* Inline bar visualization inside category/city tables */
 .bar-cell{display:flex;align-items:center;gap:.625rem}
 .bar-track{flex:1;height:8px;background:var(--surface);border-radius:100px;overflow:hidden;max-width:160px}
 .bar-fill{height:100%;border-radius:100px}
@@ -90,6 +107,18 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
 .chart-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
 .chart-legend i.a{background:var(--chart-a)}
 .chart-legend i.b{background:var(--chart-b)}
+.chart-legend i.c{background:var(--ink)}
+
+/* Vendor funnel: horizontal bars, width proportional to the first (largest) step */
+.funnel{display:flex;flex-direction:column;gap:.625rem}
+.funnel-step{display:flex;align-items:center;gap:1rem}
+.funnel-lbl{width:170px;flex-shrink:0;font-size:.875rem;font-weight:600;color:var(--ink2)}
+.funnel-bar-track{flex:1;background:var(--surface);border-radius:6px;overflow:hidden}
+.funnel-bar{height:32px;background:var(--blue);border-radius:6px;display:flex;align-items:center;color:var(--white);font-weight:700;padding:0 .75rem;font-size:.875rem;white-space:nowrap;min-width:2.5rem}
+.funnel-pct{font-size:.8125rem;color:var(--ink3);width:80px;flex-shrink:0}
+
+/* Demand gap table: count intensity via a filled amber background swatch */
+.gap-count{display:inline-flex;align-items:center;justify-content:center;min-width:2rem;padding:.2rem .5rem;border-radius:6px;font-weight:700;background:var(--warn-lt);color:var(--warn)}
 </style>
 <canvas id="logo-m" style="display:none;position:absolute;top:-9999px"></canvas>
 </head>
@@ -113,8 +142,15 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
         <span class="email" id="who-email"></span>
         <span class="role" id="who-role"></span>
       </div>
-      <div class="dash-controls">
-        <select class="win-select" id="win-select">
+      <a href="#" class="signout" id="signout-link">Sign out</a>
+    </div>
+
+    <div class="dash-status" id="dash-status"></div>
+
+    <div class="dash-layout">
+      <div class="sidebar">
+        <h3>Time window</h3>
+        <select id="win-select">
           <option value="1">Last 1 minute</option>
           <option value="60">Last 1 hour</option>
           <option value="1440">Last 1 day</option>
@@ -123,40 +159,76 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
           <option value="30240">Last 3 weeks</option>
           <option value="43200">Last 1 month</option>
         </select>
-        <a href="#" class="signout" id="signout-link">Sign out</a>
+
+        <h3>City</h3>
+        <select id="city-select"><option value="">All cities</option></select>
+
+        <h3>Category</h3>
+        <select id="cat-select"><option value="">All categories</option></select>
+
+        <a href="#" class="reset-link" id="reset-filters">Reset filters</a>
       </div>
-    </div>
 
-    <div class="dash-status" id="dash-status"></div>
+      <div class="main-content">
+        <div class="stat-grid" id="stat-grid"></div>
 
-    <div class="stat-grid" id="stat-grid"></div>
+        <div class="panel">
+          <h2>Demand gaps</h2>
+          <div class="sub">City + category combinations where searches came back empty — the strongest signal for where to recruit vendors next.</div>
+          <table id="gaps-table">
+            <thead><tr><th>City</th><th>Category</th><th>Zero-result searches</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="empty-note" id="gaps-empty" style="display:none">No demand gaps in this window.</div>
+        </div>
 
-    <div class="panel">
-      <h2>By category</h2>
-      <table id="cat-table">
-        <thead><tr><th>Category</th><th>Searches</th><th>Deals viewed</th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <div class="empty-note" id="cat-empty" style="display:none">No search activity in this window.</div>
-    </div>
+        <div class="panel">
+          <h2>By category</h2>
+          <div class="sub">Click a row to see its city breakdown.</div>
+          <table id="cat-table">
+            <thead><tr><th></th><th>Category</th><th>Searches</th><th>Deals viewed</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="empty-note" id="cat-empty" style="display:none">No search activity in this window.</div>
+        </div>
 
-    <div class="panel">
-      <h2>Zero-result searches</h2>
-      <table id="zero-table">
-        <thead><tr><th>Query</th><th>City</th><th>Category</th><th>When</th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <div class="empty-note" id="zero-empty" style="display:none">No zero-result searches in this window.</div>
-    </div>
+        <div class="panel">
+          <h2>By city</h2>
+          <div class="sub">Click a row to see its category breakdown.</div>
+          <table id="city-table">
+            <thead><tr><th></th><th>City</th><th>Searches</th><th>Views</th><th>Claims</th><th>Zero-result</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="empty-note" id="city-empty" style="display:none">No activity in this window.</div>
+        </div>
 
-    <div class="panel">
-      <h2>Trend</h2>
-      <div class="chart-legend">
-        <span><i class="a"></i>Searches</span>
-        <span><i class="b"></i>Claims</span>
+        <div class="panel">
+          <h2>Vendor funnel</h2>
+          <div class="sub">Not affected by the city/category filters — the category isn't known yet at the moment a submission starts.</div>
+          <div class="funnel" id="funnel"></div>
+          <div class="empty-note" id="funnel-empty" style="display:none">No vendor activity in this window.</div>
+        </div>
+
+        <div class="panel">
+          <h2>Zero-result searches</h2>
+          <table id="zero-table">
+            <thead><tr><th>Query</th><th>City</th><th>Category</th><th>When</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="empty-note" id="zero-empty" style="display:none">No zero-result searches in this window.</div>
+        </div>
+
+        <div class="panel">
+          <h2>Trend</h2>
+          <div class="chart-legend">
+            <span><i class="a"></i>Searches</span>
+            <span><i class="b"></i>Claims</span>
+            <span><i class="c"></i>Active users</span>
+          </div>
+          <div id="trend-chart"></div>
+          <div class="empty-note" id="trend-empty" style="display:none">No activity to chart in this window.</div>
+        </div>
       </div>
-      <div id="trend-chart"></div>
-      <div class="empty-note" id="trend-empty" style="display:none">No activity to chart in this window.</div>
     </div>
   </div>
 </div>
@@ -280,11 +352,13 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
   // Replace with your real Client ID if this page is ever copied to a new project.
   const GOOGLE_CLIENT_ID = '639642249618-mq2qd62e9npk3s026rkv1kmuoft7tsg9.apps.googleusercontent.com';
 
-  const statusEl   = document.getElementById('status');
-  const signinCard = document.getElementById('signin-card');
-  const dashCard   = document.getElementById('dash-card');
-  const dashStatus = document.getElementById('dash-status');
-  const winSelect  = document.getElementById('win-select');
+  const statusEl    = document.getElementById('status');
+  const signinCard  = document.getElementById('signin-card');
+  const dashCard    = document.getElementById('dash-card');
+  const dashStatus  = document.getElementById('dash-status');
+  const winSelect   = document.getElementById('win-select');
+  const citySelect  = document.getElementById('city-select');
+  const catSelect   = document.getElementById('cat-select');
 
   // Each stat's display label and color category:
   // 'neutral' (coral) = volume/activity, 'good' (green) = a positive outcome,
@@ -316,7 +390,7 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     document.getElementById('who-role').textContent = role;
     signinCard.style.display = 'none';
     dashCard.classList.add('show');
-    loadDashboard();
+    loadFilters().then(loadDashboard);
   }
 
   async function handleCredentialResponse(response) {
@@ -361,11 +435,39 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     return r.json();
   }
 
+  // Builds the shared ?minutes=&city=&category= query suffix from current
+  // sidebar state, for every endpoint that respects filters.
+  function filterQS() {
+    const parts = ['minutes=' + winSelect.value];
+    if (citySelect.value) parts.push('city=' + encodeURIComponent(citySelect.value));
+    if (catSelect.value) parts.push('category=' + encodeURIComponent(catSelect.value));
+    return parts.join('&');
+  }
+
   function fmtTime(iso, bucketMinutes) {
     const d = new Date(iso);
     return bucketMinutes >= 1440
       ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
       : d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Populates the city/category dropdowns from what actually appears in the
+  // current window — never a hardcoded list, so it's always accurate and
+  // never offers a filter that would just show an empty dashboard.
+  async function loadFilters() {
+    const prevCity = citySelect.value, prevCat = catSelect.value;
+    try {
+      const data = await authFetch('/admin/stats/filters?minutes=' + winSelect.value);
+      citySelect.innerHTML = '<option value="">All cities</option>' +
+        data.cities.map(c => '<option value="' + c + '">' + c + '</option>').join('');
+      catSelect.innerHTML = '<option value="">All categories</option>' +
+        data.categories.map(c => '<option value="' + c + '">' + c + '</option>').join('');
+      // Keep the previous selection if it still exists in the new window.
+      if (data.cities.includes(prevCity)) citySelect.value = prevCity;
+      if (data.categories.includes(prevCat)) catSelect.value = prevCat;
+    } catch (e) {
+      if (e.message !== 'session expired') console.error('loadFilters failed:', e);
+    }
   }
 
   function renderStatCards(overview) {
@@ -384,9 +486,36 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     }
   }
 
+  // Shared drill-down row builder: a clickable summary row plus a hidden
+  // nested-table row that toggles open/closed, used by both the category and
+  // city tables since they are structural mirrors of each other.
+  function buildDrillRow(cols, subRows, subHeaders, colSpan) {
+    const tr = document.createElement('tr');
+    tr.className = 'drill-row';
+    tr.innerHTML = '<td><span class="drill-icon">&#9656;</span></td>' + cols;
+    const sub = document.createElement('tr');
+    sub.className = 'drill-panel';
+    sub.style.display = 'none';
+    const subTd = document.createElement('td');
+    subTd.colSpan = colSpan;
+    if (subRows.length) {
+      subTd.innerHTML = '<div class="drill-inner"><table><thead><tr>' +
+        subHeaders.map(h => '<th>' + h + '</th>').join('') +
+        '</tr></thead><tbody>' + subRows + '</tbody></table></div>';
+    } else {
+      subTd.innerHTML = '<div class="drill-inner">No breakdown available.</div>';
+    }
+    sub.appendChild(subTd);
+    tr.addEventListener('click', () => {
+      const open = sub.style.display !== 'none';
+      sub.style.display = open ? 'none' : '';
+      tr.querySelector('.drill-icon').classList.toggle('open', !open);
+    });
+    return [tr, sub];
+  }
+
   // Bar length is relative to the largest single value across BOTH columns,
-  // so a category's search bar and view bar stay visually comparable to
-  // every other category's, not just to each other within one row.
+  // so bars stay visually comparable across every row, not just within one.
   function renderCategories(data) {
     const tbody = document.querySelector('#cat-table tbody');
     const empty = document.getElementById('cat-empty');
@@ -395,16 +524,86 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     empty.style.display = 'none';
     const max = Math.max(1, ...data.categories.flatMap(c => [c.searches, c.views]));
     for (const c of data.categories) {
-      const tr = document.createElement('tr');
       const sPct = Math.round((c.searches / max) * 100);
       const vPct = Math.round((c.views / max) * 100);
-      tr.innerHTML =
+      const cols =
         '<td>' + (c.category || 'unknown') + '</td>' +
         '<td><div class="bar-cell"><span class="bar-num">' + c.searches + '</span>' +
           '<div class="bar-track"><div class="bar-fill a" style="width:' + sPct + '%"></div></div></div></td>' +
         '<td><div class="bar-cell"><span class="bar-num">' + c.views + '</span>' +
           '<div class="bar-track"><div class="bar-fill b" style="width:' + vPct + '%"></div></div></div></td>';
+      const subRows = c.by_city.map(bc =>
+        '<tr><td>' + bc.city + '</td><td>' + bc.searches + '</td><td>' + bc.views + '</td></tr>').join('');
+      const [tr, sub] = buildDrillRow(cols, subRows, ['City', 'Searches', 'Views'], 4);
       tbody.appendChild(tr);
+      tbody.appendChild(sub);
+    }
+  }
+
+  function renderCities(data) {
+    const tbody = document.querySelector('#city-table tbody');
+    const empty = document.getElementById('city-empty');
+    tbody.innerHTML = '';
+    if (!data.cities.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    for (const c of data.cities) {
+      const cols =
+        '<td>' + c.city + '</td><td>' + c.searches + '</td><td>' + c.views + '</td>' +
+        '<td>' + c.claims + '</td><td>' + c.zero_results + '</td>';
+      const subRows = c.by_category.map(bc =>
+        '<tr><td>' + bc.category + '</td><td>' + bc.searches + '</td><td>' + bc.views + '</td></tr>').join('');
+      const [tr, sub] = buildDrillRow(cols, subRows, ['Category', 'Searches', 'Views'], 6);
+      tbody.appendChild(tr);
+      tbody.appendChild(sub);
+    }
+  }
+
+  function renderGaps(data) {
+    const tbody = document.querySelector('#gaps-table tbody');
+    const empty = document.getElementById('gaps-empty');
+    tbody.innerHTML = '';
+    if (!data.gaps.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    for (const g of data.gaps.slice(0, 25)) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + g.city + '</td><td>' + g.category + '</td>' +
+        '<td><span class="gap-count">' + g.count + '</span></td>';
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderFunnel(data) {
+    const host  = document.getElementById('funnel');
+    const empty = document.getElementById('funnel-empty');
+    host.innerHTML = '';
+    const f = data.funnel;
+    if (!f.started && !f.completed && !f.approved && !f.rejected) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    const steps = [
+      { lbl: 'Started',    n: f.started },
+      { lbl: 'Completed',  n: f.completed },
+      { lbl: 'Approved',   n: f.approved },
+      { lbl: 'Rejected',   n: f.rejected },
+    ];
+    const max = Math.max(1, f.started, f.completed);
+    for (const s of steps) {
+      const pct = Math.max(4, Math.round((s.n / max) * 100));
+      const row = document.createElement('div');
+      row.className = 'funnel-step';
+      row.innerHTML =
+        '<div class="funnel-lbl">' + s.lbl + '</div>' +
+        '<div class="funnel-bar-track"><div class="funnel-bar" style="width:' + pct + '%">' + s.n + '</div></div>';
+      host.appendChild(row);
+    }
+    if (data.start_to_complete_pct !== null || data.approval_rate_pct !== null) {
+      const note = document.createElement('div');
+      note.className = 'funnel-pct';
+      note.style.cssText = 'margin-top:.5rem;width:auto';
+      const bits = [];
+      if (data.start_to_complete_pct !== null) bits.push(data.start_to_complete_pct + '% of started submissions were completed');
+      if (data.approval_rate_pct !== null) bits.push(data.approval_rate_pct + '% of decided deals were approved');
+      note.textContent = bits.join(' · ');
+      host.appendChild(note);
     }
   }
 
@@ -422,12 +621,13 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     }
   }
 
-  // Hand-drawn grouped-bar SVG chart — same lightweight approach as the logo,
-  // no charting library needed for two series over up to ~30 buckets.
+  // Hand-drawn grouped-bar + line SVG chart — same lightweight approach as
+  // the logo, no charting library needed for this data volume.
   const NS = 'http://www.w3.org/2000/svg';
   const rootStyle = getComputedStyle(document.documentElement);
   const CHART_A = rootStyle.getPropertyValue('--chart-a').trim() || '#E85D35';
   const CHART_B = rootStyle.getPropertyValue('--chart-b').trim() || '#16A34A';
+  const CHART_C = rootStyle.getPropertyValue('--ink').trim() || '#1C1917';
   function renderTrend(data) {
     const host  = document.getElementById('trend-chart');
     const empty = document.getElementById('trend-empty');
@@ -441,7 +641,7 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     const plotW = W - padL - padR;
     const plotH = H - padT - padB;
     const n = data.points.length;
-    const maxVal = Math.max(1, ...data.points.flatMap(p => [p.search_performed, p.deal_claimed]));
+    const maxVal = Math.max(1, ...data.points.flatMap(p => [p.search_performed, p.deal_claimed, p.active_users]));
 
     const groupW = plotW / n;
     const barW = Math.max(2, Math.min(18, groupW * 0.32));
@@ -452,14 +652,12 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', H);
 
-    // Baseline
     const base = document.createElementNS(NS, 'line');
     base.setAttribute('x1', padL); base.setAttribute('x2', W - padR);
     base.setAttribute('y1', H - padB); base.setAttribute('y2', H - padB);
     base.setAttribute('stroke', '#E7E5E4'); base.setAttribute('stroke-width', '1');
     svg.appendChild(base);
 
-    // A handful of horizontal gridlines with value labels, evenly spaced.
     const gridSteps = 4;
     for (let i = 0; i <= gridSteps; i++) {
       const val = Math.round((maxVal / gridSteps) * i);
@@ -472,6 +670,7 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
       svg.appendChild(t);
     }
 
+    const linePts = [];
     data.points.forEach((p, i) => {
       const gx = padL + i * groupW;
       const sH = (p.search_performed / maxVal) * plotH;
@@ -491,8 +690,9 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
       rectB.setAttribute('rx', 2); rectB.setAttribute('fill', CHART_B);
       svg.appendChild(rectB);
 
-      // Label every bucket if there is room, otherwise thin them out so
-      // labels never overlap on a wide window with many buckets.
+      const auH = (p.active_users / maxVal) * plotH;
+      linePts.push((gx + groupW/2) + ',' + (H - padB - auH));
+
       const showEvery = Math.max(1, Math.ceil(n / (W / 60)));
       if (i % showEvery === 0) {
         const t = document.createElementNS(NS, 'text');
@@ -504,22 +704,47 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
       }
     });
 
+    // Active-users overlay as a line, on the same scale as the bars — kept
+    // as a thin line + dots so it reads as "trend" rather than competing
+    // visually with the two bar series underneath it.
+    if (linePts.length > 1) {
+      const poly = document.createElementNS(NS, 'polyline');
+      poly.setAttribute('points', linePts.join(' '));
+      poly.setAttribute('fill', 'none');
+      poly.setAttribute('stroke', CHART_C);
+      poly.setAttribute('stroke-width', '2');
+      svg.appendChild(poly);
+    }
+    linePts.forEach(pt => {
+      const [x, y] = pt.split(',');
+      const dot = document.createElementNS(NS, 'circle');
+      dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('r', '2.5');
+      dot.setAttribute('fill', CHART_C);
+      svg.appendChild(dot);
+    });
+
     host.appendChild(svg);
   }
 
   async function loadDashboard() {
-    const minutes = winSelect.value;
+    const qs = filterQS();
     dashStatus.textContent = 'Loading...';
     dashStatus.classList.remove('err');
     try {
-      const [overview, categories, zero, trend] = await Promise.all([
-        authFetch('/admin/stats/overview?minutes=' + minutes),
-        authFetch('/admin/stats/categories?minutes=' + minutes),
-        authFetch('/admin/stats/zero-results?minutes=' + minutes),
-        authFetch('/admin/stats/timeseries?minutes=' + minutes),
+      const [overview, categories, cities, gaps, funnel, zero, trend] = await Promise.all([
+        authFetch('/admin/stats/overview?' + qs),
+        authFetch('/admin/stats/categories?' + qs.replace(/&category=[^&]*/, '')), // categories view filters by city only
+        authFetch('/admin/stats/cities?' + qs.replace(/&city=[^&]*/, '')),         // cities view filters by category only
+        authFetch('/admin/stats/gaps?minutes=' + winSelect.value),
+        authFetch('/admin/stats/vendor-funnel?minutes=' + winSelect.value),
+        authFetch('/admin/stats/zero-results?' + qs),
+        authFetch('/admin/stats/timeseries?' + qs),
       ]);
       renderStatCards(overview);
       renderCategories(categories);
+      renderCities(cities);
+      renderGaps(gaps);
+      renderFunnel(funnel);
       renderZeroResults(zero);
       renderTrend(trend);
       dashStatus.textContent = overview.truncated
@@ -532,7 +757,15 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
       }
     }
   }
-  winSelect.addEventListener('change', loadDashboard);
+  winSelect.addEventListener('change', () => { loadFilters().then(loadDashboard); });
+  citySelect.addEventListener('change', loadDashboard);
+  catSelect.addEventListener('change', loadDashboard);
+  document.getElementById('reset-filters').addEventListener('click', function(e){
+    e.preventDefault();
+    citySelect.value = '';
+    catSelect.value = '';
+    loadDashboard();
+  });
 
   // If a session token is already stored, confirm it is still valid before
   // asking the person to sign in again.
