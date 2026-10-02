@@ -158,7 +158,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
   box-shadow:0 16px 48px rgba(0,92,230,.1);
   border-color:rgba(0,92,230,.25);
 }
-/* Icon — big, colored, prominent */
+/* Icon - big, colored, prominent */
 .ben-icon{
   width:72px;height:72px;
   border-radius:20px;
@@ -629,7 +629,7 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
       const apexY  = 0;
       const baseY  = cap;
 
-      // Legs — narrower spread (72% of full A width)
+      // Legs - narrower spread (72% of full A width)
       const lBotX  = apexX + (aLeft  - apexX) * 0.72;
       const rBotX  = apexX + (aRight - apexX) * 0.72;
 
@@ -666,7 +666,7 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
       s.setAttribute('width',totalW); s.setAttribute('height',totalH);
       s.setAttribute('viewBox','0 0 '+totalW+' '+totalH);
 
-      // wzsome text — A transparent, font handles kerning
+      // wzsome text - A transparent, font handles kerning
       const txt = document.createElementNS(NS,'text');
       txt.setAttribute('x',ox.toFixed(1)); txt.setAttribute('y',bl.toFixed(1));
       txt.setAttribute('font-size',fontSize); txt.setAttribute('font-weight','800');
@@ -693,7 +693,7 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
         l.setAttribute('stroke-linecap','round'); s.appendChild(l);
       }
 
-      // A legs — thick rounded strokes
+      // A legs - thick rounded strokes
       line(AX,AY,LBX,BY,inkColor,sw);
       line(AX,AY,RBX,BY,inkColor,sw);
 
@@ -720,11 +720,11 @@ footer{padding:64px max(5vw,24px) 40px;background:#1C0F0A}
       return s;
     }
 
-    // Nav logo — dark ink, coral smile
+    // Nav logo - dark ink, coral smile
     var navSlot = document.getElementById('nav-logo-slot');
     if(navSlot){ navSlot.appendChild(makeLogo(28,'#1C1917','#E85D35')); }
 
-    // Footer logo — warm white, coral smile
+    // Footer logo - warm white, coral smile
     var footSlot = document.getElementById('footer-logo-slot');
     if(footSlot){ footSlot.appendChild(makeLogo(28,'#FAFAF9','#E85D35')); }
   });
