@@ -11,107 +11,154 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root {
-  --blue:    #E85D35;
+  --blue:    #E85D35;   /* Awzsome brand coral (name kept for history) */
   --blue-dk: #C4421C;
-  --blue-lt: #FFF7ED;
+  --blue-lt: #FFF4EE;
   --ink:     #1C1917;
   --ink2:    #44403C;
   --ink3:    #78716C;
-  --surface: #FAFAF9;
+  --surface: #F6F5F3;
   --border:  #E7E5E4;
   --white:   #FFFFFF;
-  --font:    'Plus Jakarta Sans', sans-serif;
-  --r:       12px;
-  --rxl:     28px;
-  /* Dashboard-only semantic colors, kept in the same warm palette as the
-     brand coral rather than introducing an unrelated blue/green tech-dashboard
-     look. --good/--warn are used sparingly, as accents, not backgrounds. */
   --good:    #16A34A;
   --good-lt: #F0FDF4;
-  --warn:    #D97706;
+  --warn:    #B45309;
   --warn-lt: #FFFBEB;
   --chart-a: #E85D35;
   --chart-b: #16A34A;
+  --font:    'Plus Jakarta Sans', system-ui, sans-serif;
+  --r:       10px;
+  --top-h:   64px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-font-smoothing:antialiased}
-body{font-family:var(--font);background:var(--surface);color:var(--ink);line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
+body{font-family:var(--font);background:var(--surface);color:var(--ink);line-height:1.55;min-height:100vh}
+button,select,input{font-family:var(--font)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
-nav{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:64px;display:flex;align-items:center;padding:0 max(5vw,24px)}
-.nav-logo{text-decoration:none;display:flex;align-items:center;line-height:1}
+/* ── Top header ─────────────────────────────────────────────────────────── */
+.top{position:sticky;top:0;z-index:20;height:var(--top-h);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0 1.5rem}
+.nav-logo{display:flex;align-items:center;text-decoration:none;line-height:1}
+.who{display:none;align-items:center;gap:.75rem;min-width:0}
+.who.show{display:flex}
+.who .email{font-weight:600;font-size:.875rem;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role{background:var(--blue-lt);color:var(--blue-dk);font-size:.75rem;font-weight:700;padding:.2rem .65rem;border-radius:100px}
+.signout{color:var(--ink2);font-size:.875rem;font-weight:600;text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:.4rem .9rem;white-space:nowrap}
+.signout:hover{border-color:var(--blue);color:var(--blue)}
 
-.wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
-.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rxl);padding:2.75rem 2.5rem;max-width:400px;width:100%;text-align:center}
-.card h1{font-size:1.625rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem;color:var(--ink)}
-.card p{font-size:1rem;color:var(--ink2);margin-bottom:2rem;line-height:1.6}
+/* ── Sign-in view ───────────────────────────────────────────────────────── */
+.wrap{min-height:calc(100vh - var(--top-h));display:flex;align-items:center;justify-content:center;padding:24px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:2.75rem 2.5rem;max-width:400px;width:100%;text-align:center}
+.card h1{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem}
+.card p{font-size:.9375rem;color:var(--ink2);margin-bottom:2rem}
 .gbtn-slot{display:flex;justify-content:center;margin-bottom:1.25rem}
 .status{font-size:.9375rem;color:var(--ink2);min-height:1.5rem}
 .status.err{color:var(--blue-dk);font-weight:600}
-.btn-primary{width:100%;font-family:var(--font);font-size:.9375rem;font-weight:700;color:var(--white);background:var(--blue);border:none;border-radius:var(--r);padding:.75rem 1rem;cursor:pointer;transition:background .15s}
+.btn-primary{width:100%;font-size:.9375rem;font-weight:700;color:var(--white);background:var(--blue);border:none;border-radius:var(--r);padding:.75rem 1rem;cursor:pointer}
 .btn-primary:hover{background:var(--blue-dk)}
 .btn-primary:disabled{opacity:.6;cursor:default}
+
+/* ── App shell: sidebar + main ──────────────────────────────────────────── */
+.app{display:none;grid-template-columns:236px minmax(0,1fr);min-height:calc(100vh - var(--top-h))}
+.app.show{display:grid}
+.side{position:sticky;top:var(--top-h);align-self:start;height:calc(100vh - var(--top-h));overflow-y:auto;background:var(--white);border-right:1px solid var(--border);padding:1.25rem .875rem}
+.grp{font-size:.75rem;font-weight:600;color:var(--ink3);padding:0 .75rem;margin:1.25rem 0 .35rem}
+.grp:first-child{margin-top:0}
+.nav-item{width:100%;display:flex;align-items:center;justify-content:space-between;gap:.5rem;background:none;border:none;border-radius:8px;padding:.55rem .75rem;font-size:.9rem;font-weight:600;color:var(--ink2);cursor:pointer;text-align:left}
+.nav-item:hover{background:var(--surface);color:var(--ink)}
+.nav-item.on{background:var(--blue-lt);color:var(--blue-dk);box-shadow:inset 3px 0 0 var(--blue)}
+.nbadge{font-size:.7rem;font-weight:800;min-width:1.4rem;text-align:center;padding:.1rem .4rem;border-radius:100px;background:var(--surface);color:var(--ink3)}
+.nbadge.warn{background:var(--warn);color:var(--white)}
+.nbadge:empty{display:none}
+
+.main{min-width:0}
+
+/* Filter bar — pinned under the header so it is always reachable */
+.filterbar{position:sticky;top:var(--top-h);z-index:10;background:rgba(246,245,243,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.875rem 2rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:.75rem}
+.fld{display:flex;flex-direction:column;gap:.25rem;min-width:150px}
+.fld label{font-size:.75rem;font-weight:600;color:var(--ink3)}
+.fld select,.fld input{font-size:.875rem;color:var(--ink);background:var(--white);border:1px solid var(--border);border-radius:8px;padding:.5rem .625rem;height:38px}
+.fld.off{opacity:.45}
+.fld.off select{cursor:not-allowed}
+.fld-dates{display:none;gap:.5rem}
+.fld-dates.show{display:flex}
+.fld-dates .fld{min-width:140px}
+.fb-actions{display:flex;align-items:center;gap:.875rem;margin-left:auto}
+#apply-btn{height:38px;padding:0 1.25rem;font-size:.875rem;font-weight:700;border-radius:8px;border:1px solid var(--border);background:var(--white);color:var(--ink3);cursor:default}
+#apply-btn.dirty{background:var(--blue);border-color:var(--blue);color:var(--white);cursor:pointer}
+#apply-btn.dirty:hover{background:var(--blue-dk)}
+.reset-link{font-size:.8125rem;font-weight:600;color:var(--ink3);text-decoration:none}
+.reset-link:hover{color:var(--blue)}
+
+.content{padding:1.75rem 2rem 3rem;max-width:1240px}
+.sec{display:none}
+.sec.on{display:block}
+.sec-head{margin-bottom:1.25rem}
+.sec-head h1{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+.sec-head p{font-size:.875rem;color:var(--ink3);margin-top:.15rem;max-width:68ch}
+.scope{font-size:.8125rem;color:var(--ink3);margin-bottom:1.25rem}
+.scope b{color:var(--ink2);font-weight:600}
+.dash-status{font-size:.875rem;color:var(--ink3);margin-bottom:1rem}
+.dash-status:empty{display:none}
+.dash-status.err{color:var(--blue-dk);font-weight:600}
+
+/* KPI ledger: one container, cells divided by hairlines (1px gap trick) */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));background:var(--white);border-radius:14px;overflow:hidden;outline:1px solid var(--border);outline-offset:-1px;margin-bottom:1.5rem}
+/* Each cell draws its own right + bottom hairline on the inside; the outer
+   edge lines up with the container outline, so an odd number of cells never
+   leaves a grey hole or a doubled line. */
+.kpi{background:var(--white);padding:1.15rem 1.35rem;text-align:left;border:none;box-shadow:inset -1px -1px 0 var(--border)}
+.kpi .n{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1.1;color:var(--ink)}
+.kpi .lbl{display:flex;align-items:center;gap:.4rem;font-size:.8125rem;font-weight:600;color:var(--ink3);margin-top:.35rem}
+.kpi .lbl i{width:7px;height:7px;border-radius:50%;background:var(--ink3);flex-shrink:0}
+.kpi.neutral .lbl i{background:var(--blue)}
+.kpi.good .lbl i{background:var(--good)}
+.kpi.warn .lbl i{background:var(--warn)}
+button.kpi{cursor:pointer;font-family:var(--font)}
+button.kpi:hover{background:var(--surface)}
+button.kpi.sel{box-shadow:inset -1px 0 0 var(--border),inset 0 -3px 0 var(--blue)}
+.chg{font-size:.75rem;font-weight:700;margin-top:.3rem;display:block}
+.chg.up{color:var(--good)}
+.chg.down{color:var(--warn)}
+.chg.flat{color:var(--ink3);font-weight:600}
+
+.panel{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.35rem 1.5rem;margin-bottom:1.5rem}
+.panel h2{font-size:1rem;font-weight:700}
+.panel .sub{font-size:.8125rem;color:var(--ink3);margin:.15rem 0 1rem}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:1.5rem;align-items:start}
+.cols .panel{margin-bottom:0}
+
+/* Overview: needs-attention list */
+.att{display:flex;flex-direction:column}
+.att-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem .25rem;border:none;border-bottom:1px solid var(--surface);background:none;text-align:left;cursor:pointer;width:100%}
+.att-row:last-child{border-bottom:none}
+.att-row:hover{background:var(--surface)}
+.att-row .t{font-size:.9375rem;font-weight:600;color:var(--ink)}
+.att-row .d{font-size:.8125rem;color:var(--ink3)}
+.att-row .c{font-size:1.5rem;font-weight:800;color:var(--warn);min-width:2.5rem;text-align:right}
+.att-row.zero .c{color:var(--ink3);font-weight:600;font-size:1rem}
+.att-row.zero .t{color:var(--ink3)}
+
+table{width:100%;border-collapse:collapse}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap table{min-width:480px}
+th{text-align:left;font-size:.75rem;font-weight:700;color:var(--ink3);padding:.5rem;border-bottom:1px solid var(--border);white-space:nowrap}
+td{font-size:.875rem;color:var(--ink2);padding:.55rem .5rem;border-bottom:1px solid var(--surface)}
+.empty-note{font-size:.875rem;color:var(--ink3);padding:.75rem .5rem}
 .req-actions{display:flex;gap:.5rem}
-.btn-sm{padding:.35rem .75rem;font-size:.8125rem;border-radius:8px;font-weight:700;cursor:pointer;border:none;font-family:var(--font)}
+.btn-sm{padding:.35rem .75rem;font-size:.8125rem;border-radius:8px;font-weight:700;cursor:pointer;border:none}
 .btn-sm.approve{background:var(--good);color:var(--white)}
 .btn-sm.reject{background:var(--warn-lt);color:var(--warn);border:1px solid var(--warn)}
 .btn-sm:disabled{opacity:.5;cursor:default}
 
-.dash{display:none;max-width:1320px;width:100%;margin:0 auto}
-.dash.show{display:block}
-.dash-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.75rem}
-.dash-who{display:flex;align-items:center;gap:.75rem}
-.dash-who .email{font-weight:700;font-size:1rem;color:var(--ink)}
-.role{display:inline-block;background:var(--blue-lt);color:var(--blue-dk);font-size:.8125rem;font-weight:700;padding:.25rem .75rem;border-radius:100px}
-.signout{display:inline-block;color:var(--ink2);font-size:.9375rem;font-weight:600;text-decoration:none;border:1.5px solid var(--border);border-radius:var(--r);padding:.5rem 1.25rem;transition:border-color .15s,color .15s}
-.signout:hover{border-color:var(--blue);color:var(--blue)}
-
-.dash-layout{display:flex;gap:1.75rem;align-items:flex-start}
-.sidebar{width:220px;flex-shrink:0;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;position:sticky;top:88px}
-.sidebar h3{font-size:.75rem;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem;margin-top:1.25rem}
-.sidebar h3:first-child{margin-top:0}
-.sidebar select{width:100%;font-family:var(--font);font-size:.9375rem;color:var(--ink);padding:.5rem .625rem;border:1.5px solid var(--border);border-radius:var(--r);background:var(--white)}
-.sidebar .reset-link{display:block;text-align:center;margin-top:1.5rem;font-size:.875rem;font-weight:600;color:var(--blue);text-decoration:none;padding-top:1rem;border-top:1px solid var(--border)}
-.sidebar .reset-link:hover{color:var(--blue-dk)}
-.main-content{flex:1;min-width:0}
-
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
-.stat-group{margin-bottom:1.75rem}
-.stat-group h3{font-size:.9375rem;font-weight:700;color:var(--ink);margin-bottom:.75rem}
-.stat-group .stat-grid{margin-bottom:0}
-.chg{font-size:.75rem;font-weight:700;margin-top:.375rem;display:block}
-.chg.up{color:var(--good)}
-.chg.down{color:var(--warn)}
-.chg.flat{color:var(--ink3);font-weight:600}
-.stat-card{background:var(--white);border:1px solid var(--border);border-top:3px solid var(--border);border-radius:var(--r);padding:1.25rem}
-.stat-card.neutral{border-top-color:var(--blue)}
-.stat-card.good{border-top-color:var(--good);background:var(--good-lt)}
-.stat-card.warn{border-top-color:var(--warn);background:var(--warn-lt)}
-.stat-card .n{font-size:1.75rem;font-weight:800;color:var(--ink);letter-spacing:-.02em}
-.stat-card .lbl{font-size:.8125rem;font-weight:600;color:var(--ink3);margin-top:.25rem}
-
-.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:1.5rem}
-.panel h2{font-size:1.0625rem;font-weight:700;margin-bottom:.25rem;color:var(--ink)}
-.panel .sub{font-size:.8125rem;color:var(--ink3);margin-bottom:1rem}
-table{width:100%;border-collapse:collapse}
-.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.table-wrap table{min-width:480px}
-th{text-align:left;font-size:.8125rem;font-weight:700;color:var(--ink3);padding:.5rem .5rem;border-bottom:1px solid var(--border)}
-td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px solid var(--surface)}
-.empty-note{font-size:.9375rem;color:var(--ink3);padding:.5rem}
-.dash-status{font-size:.9375rem;color:var(--ink3);margin-bottom:1rem}
-.dash-status.err{color:var(--blue-dk);font-weight:600}
-
-/* Drill-down rows: click a category/city row to expand a nested breakdown */
 .drill-row{cursor:pointer}
 .drill-row:hover{background:var(--surface)}
 .drill-icon{display:inline-block;width:1rem;transition:transform .15s;color:var(--ink3)}
 .drill-icon.open{transform:rotate(90deg)}
-.drill-panel td{padding:0;border-bottom:1px solid var(--surface)}
+.drill-panel td{padding:0}
 .drill-inner{padding:.75rem 1.5rem;background:var(--surface)}
-.drill-inner table{background:transparent}
-.drill-inner th, .drill-inner td{padding:.375rem .5rem;font-size:.875rem}
+.drill-inner th,.drill-inner td{padding:.375rem .5rem;font-size:.8125rem}
 
-/* Inline bar visualization inside category/city tables */
 .bar-cell{display:flex;align-items:center;gap:.625rem}
 .bar-track{flex:1;height:8px;background:var(--surface);border-radius:100px;overflow:hidden;max-width:160px}
 .bar-fill{height:100%;border-radius:100px}
@@ -119,31 +166,24 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
 .bar-fill.b{background:var(--chart-b)}
 .bar-num{font-weight:700;color:var(--ink);min-width:1.5rem;text-align:right}
 
-.chart-legend{display:flex;gap:1.5rem;margin-bottom:1rem;font-size:.875rem;font-weight:600;color:var(--ink2)}
+.chart-legend{display:flex;flex-wrap:wrap;gap:1.25rem;margin-bottom:.75rem;font-size:.8125rem;font-weight:600;color:var(--ink2)}
 .chart-legend span{display:inline-flex;align-items:center;gap:.4rem}
 .chart-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
 .chart-legend i.a{background:var(--chart-a)}
 .chart-legend i.b{background:var(--chart-b)}
 .chart-legend i.c{background:var(--ink)}
 
-/* Vendor funnel: horizontal bars, width proportional to the first (largest) step */
 .funnel{display:flex;flex-direction:column;gap:.625rem}
 .funnel-step{display:flex;align-items:center;gap:1rem}
-.funnel-lbl{width:170px;flex-shrink:0;font-size:.875rem;font-weight:600;color:var(--ink2)}
+.funnel-lbl{width:150px;flex-shrink:0;font-size:.875rem;font-weight:600;color:var(--ink2)}
 .funnel-bar-track{flex:1;background:var(--surface);border-radius:6px;overflow:hidden}
 .funnel-bar{height:32px;background:var(--blue);border-radius:6px;display:flex;align-items:center;color:var(--white);font-weight:700;padding:0 .75rem;font-size:.875rem;white-space:nowrap;min-width:2.5rem}
-.funnel-pct{font-size:.8125rem;color:var(--ink3);width:80px;flex-shrink:0}
+.funnel-note{font-size:.8125rem;color:var(--ink3);margin-top:.75rem}
 
-/* Demand gap table: count intensity via a filled amber background swatch */
-.gap-count{display:inline-flex;align-items:center;justify-content:center;min-width:2rem;padding:.2rem .5rem;border-radius:6px;font-weight:700;background:var(--warn-lt);color:var(--warn)}
-/* Deals panel: count tabs, status pills, two-line deal cells */
-.deal-tabs{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
-.deal-tab{font-family:var(--font);font-size:.8125rem;font-weight:700;color:var(--ink2);background:var(--white);border:1.5px solid var(--border);border-radius:100px;padding:.35rem .85rem;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
-.deal-tab:hover{border-color:var(--blue);color:var(--blue)}
-.deal-tab.on{background:var(--blue);border-color:var(--blue);color:var(--white)}
-.deal-tab .cnt{opacity:.75;margin-left:.25rem}
-.deal-tab.attn:not(.on){border-color:var(--warn);color:var(--warn);background:var(--warn-lt)}
-.pill{display:inline-block;font-size:.75rem;font-weight:700;padding:.15rem .6rem;border-radius:100px;white-space:nowrap}
+.gap-count{display:inline-flex;align-items:center;justify-content:center;min-width:2rem;padding:.15rem .5rem;border-radius:6px;font-weight:700;background:var(--warn-lt);color:var(--warn)}
+
+/* Deals */
+.pill{display:inline-block;font-size:.72rem;font-weight:700;padding:.15rem .6rem;border-radius:100px;white-space:nowrap}
 .pill.pending{background:var(--blue-lt);color:var(--blue-dk)}
 .pill.active{background:var(--good-lt);color:var(--good)}
 .pill.expiring{background:var(--warn-lt);color:var(--warn)}
@@ -156,57 +196,64 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
 .deal-desc{font-size:.8125rem;color:var(--ink3);line-height:1.4;margin-top:.15rem;max-width:380px}
 .deal-when{white-space:nowrap}
 .deal-when .sm{display:block;font-size:.75rem;color:var(--ink3)}
-#deals-table{min-width:760px}
-#deals-table td{vertical-align:top;padding-top:.65rem;padding-bottom:.65rem}
+#deals-table{min-width:780px}
+#deals-table td{vertical-align:top;padding-top:.7rem;padding-bottom:.7rem}
+#deals-table td:nth-child(3),#deals-table td:nth-child(4){white-space:nowrap}
 
-/* ── Mobile (phones and small tablets) ─────────────────────────────────────── */
-@media (max-width: 768px) {
-  nav{padding:0 16px}
-  .wrap{padding:16px}
-  .card{padding:2rem 1.5rem}
-
-  .dash-top{gap:.75rem}
-  .dash-who{flex-wrap:wrap}
-
-  /* Sidebar drops above the content and stops being sticky — on a phone,
-     a pinned sidebar just eats permanent screen space you can't get back. */
-  .dash-layout{flex-direction:column;gap:1rem}
-  .sidebar{width:100%;position:static;padding:1rem}
-  .sidebar h3{margin-top:1rem}
-
-  .panel{padding:1.125rem}
-  .stat-grid{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.625rem}
-  .stat-card{padding:1rem}
-  .stat-card .n{font-size:1.5rem}
-
-  /* Funnel rows: the fixed label/track/percent row is too wide for a phone —
-     stack the label above its bar instead of squeezing them onto one line. */
+/* ── Phones and small tablets ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .top{padding:0 1rem}
+  .who .email{display:none}
+  .app.show{display:block}
+  /* Sidebar becomes a swipeable tab strip under the header */
+  .side{position:sticky;top:var(--top-h);z-index:15;height:auto;display:flex;gap:.25rem;overflow-x:auto;padding:.5rem .75rem;border-right:none;border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .side::-webkit-scrollbar{display:none}
+  .grp{display:none}
+  .nav-item{width:auto;flex-shrink:0;white-space:nowrap;padding:.45rem .75rem}
+  .nav-item.on{box-shadow:inset 0 -2px 0 var(--blue)}
+  .filterbar{position:static;display:grid;grid-template-columns:1fr 1fr;padding:.875rem 1rem}
+  .fld{min-width:0}
+  .fld-dates.show{grid-column:1 / -1}
+  .fld-dates .fld{flex:1;min-width:0}
+  .fb-actions{grid-column:1 / -1;margin-left:0;justify-content:space-between}
+  #apply-btn{flex:1}
+  .content{padding:1.25rem 1rem 2.5rem}
+  .cols{grid-template-columns:1fr}
+  .cols .panel{margin-bottom:1.25rem}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpis > :last-child:nth-child(odd){grid-column:1 / -1}
+  .kpi{padding:1rem}
+  .kpi .n{font-size:1.6rem}
+  .panel{padding:1.1rem}
   .funnel-step{flex-direction:column;align-items:stretch;gap:.375rem}
   .funnel-lbl{width:auto}
-  .funnel-pct{width:auto}
-
-  .chart-legend{flex-wrap:wrap;gap:1rem}
 }
 </style>
 <canvas id="logo-m" style="display:none;position:absolute;top:-9999px"></canvas>
 </head>
 <body>
 
-<nav>
-  <a href="/" class="nav-logo" id="nav-logo-link" style="display:flex;align-items:center;text-decoration:none"><div id="nav-logo-slot"></div></a>
-</nav>
+<header class="top">
+  <a href="/" class="nav-logo" id="nav-logo-link"><div id="nav-logo-slot"></div></a>
+  <div class="who" id="who">
+    <span class="email" id="who-email"></span>
+    <span class="role" id="who-role"></span>
+    <a href="#" class="signout" id="signout-link">Sign out</a>
+  </div>
+</header>
 
-<div class="wrap">
+<!-- Sign-in view -->
+<div class="wrap" id="signin-wrap">
   <div class="card" id="signin-card">
     <h1>Admin sign-in</h1>
-    <p>Sign in with your authorized Google account to access the Awzsome dashboard.</p>
+    <p>Sign in with your authorized Google account to open the Awzsome dashboard.</p>
     <div class="gbtn-slot" id="gbtn-slot"></div>
     <div class="status" id="status"></div>
 
     <div id="request-section" style="display:none">
       <div class="status" id="request-status-msg"></div>
       <div id="request-form" style="display:none;margin-top:1rem">
-        <select id="request-role-select" style="width:100%;font-family:var(--font);font-size:.9375rem;padding:.625rem;border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:.75rem">
+        <select id="request-role-select" style="width:100%;font-size:.9375rem;padding:.625rem;border:1px solid var(--border);border-radius:var(--r);margin-bottom:.75rem">
           <option value="viewer">View access</option>
           <option value="owner">Full access</option>
         </select>
@@ -214,131 +261,197 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
       </div>
     </div>
   </div>
+</div>
 
-  <div class="dash" id="dash-card">
-    <div class="dash-top">
-      <div class="dash-who">
-        <span class="email" id="who-email"></span>
-        <span class="role" id="who-role"></span>
-      </div>
-      <a href="#" class="signout" id="signout-link">Sign out</a>
-    </div>
+<!-- Dashboard view -->
+<div class="app" id="app">
+  <nav class="side" id="side" aria-label="Dashboard sections">
+    <div class="grp">Summary</div>
+    <button class="nav-item" data-sec="overview">Overview</button>
+    <button class="nav-item" data-sec="deals">Deals <span class="nbadge" id="nb-deals"></span></button>
+    <div class="grp">Customers</div>
+    <button class="nav-item" data-sec="discovery">Discovery</button>
+    <button class="nav-item" data-sec="conversion">Conversion</button>
+    <div class="grp">Vendors</div>
+    <button class="nav-item" data-sec="pipeline">Vendor pipeline</button>
+    <button class="nav-item" data-sec="gaps">Demand gaps</button>
+    <div class="grp owner-only">Admin</div>
+    <button class="nav-item owner-only" data-sec="access">Access requests <span class="nbadge" id="nb-access"></span></button>
+  </nav>
 
-    <div class="dash-status" id="dash-status"></div>
-
-    <div class="dash-layout">
-      <div class="sidebar">
-        <h3>Time window</h3>
+  <main class="main">
+    <div class="filterbar" id="filterbar">
+      <div class="fld">
+        <label for="win-select">Time window</label>
         <select id="win-select">
-          <option value="1">Last 1 minute</option>
-          <option value="60">Last 1 hour</option>
           <option value="1440">Last 1 day</option>
           <option value="10080" selected>Last 1 week</option>
           <option value="20160">Last 2 weeks</option>
           <option value="30240">Last 3 weeks</option>
           <option value="43200">Last 1 month</option>
+          <option value="60">Last 1 hour</option>
           <option value="custom">Custom range</option>
         </select>
-
-        <div id="custom-range" style="display:none;margin-top:.75rem">
-          <label style="display:block;font-size:.75rem;font-weight:600;color:var(--ink3);margin-bottom:.25rem">From</label>
-          <input type="date" id="range-from" style="width:100%;font-family:var(--font);font-size:.9375rem;padding:.5rem .625rem;border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:.625rem">
-          <label style="display:block;font-size:.75rem;font-weight:600;color:var(--ink3);margin-bottom:.25rem">To</label>
-          <input type="date" id="range-to" style="width:100%;font-family:var(--font);font-size:.9375rem;padding:.5rem .625rem;border:1.5px solid var(--border);border-radius:var(--r)">
-        </div>
-
-        <h3>City</h3>
-        <select id="city-select"><option value="">All cities</option></select>
-
-        <h3>Category</h3>
-        <select id="cat-select"><option value="">All categories</option></select>
-
-        <a href="#" class="reset-link" id="reset-filters">Reset filters</a>
       </div>
+      <div class="fld-dates" id="custom-range">
+        <div class="fld"><label for="range-from">From</label><input type="date" id="range-from"></div>
+        <div class="fld"><label for="range-to">To</label><input type="date" id="range-to"></div>
+      </div>
+      <div class="fld">
+        <label for="city-select">City</label>
+        <select id="city-select"><option value="">All cities</option></select>
+      </div>
+      <div class="fld">
+        <label for="cat-select">Category</label>
+        <select id="cat-select"><option value="">All categories</option></select>
+      </div>
+      <div class="fld off" id="status-fld" title="Applies to the Deals view">
+        <label for="status-select">Deal status</label>
+        <select id="status-select" disabled>
+          <option value="all">All</option>
+          <option value="needs_reminder">Needs reminder</option>
+          <option value="pending">Pending approval</option>
+          <option value="active">Active</option>
+          <option value="expiring">Expiring soon</option>
+          <option value="grace">In grace</option>
+          <option value="expired">Expired</option>
+          <option value="rejected">Rejected</option>
+          <option value="revoked">Revoked</option>
+        </select>
+      </div>
+      <div class="fb-actions">
+        <a href="#" class="reset-link" id="reset-filters">Reset</a>
+        <button id="apply-btn" type="button">Apply</button>
+      </div>
+    </div>
 
-      <div class="main-content">
-        <div class="panel" id="requests-panel" style="display:none">
-          <h2>Access requests</h2>
-          <div class="sub">Visible to owners only. Approve grants access immediately.</div>
+    <div class="content">
+      <div class="dash-status" id="dash-status"></div>
+
+      <!-- Overview -->
+      <section class="sec" id="sec-overview">
+        <div class="sec-head"><h1>Overview</h1><p>The headline numbers for the period, and what needs a decision from you.</p></div>
+        <div class="scope" data-scope></div>
+        <div class="kpis" id="ov-kpis"></div>
+        <div class="cols">
+          <div class="panel">
+            <h2>Needs your attention</h2>
+            <div class="sub">Tap a row to open it.</div>
+            <div class="att" id="ov-attention"></div>
+          </div>
+          <div class="panel">
+            <h2>Trend</h2>
+            <div class="sub">Searches and claims per period, with active users as a line.</div>
+            <div class="chart-legend">
+              <span><i class="a"></i>Searches</span>
+              <span><i class="b"></i>Claims</span>
+              <span><i class="c"></i>Active users</span>
+            </div>
+            <div id="trend-chart"></div>
+            <div class="empty-note" id="trend-empty" style="display:none">No activity to chart in this period.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Deals -->
+      <section class="sec" id="sec-deals">
+        <div class="sec-head"><h1>Deals</h1><p id="deals-sub">Every deal as it stands today. The time window does not apply here; city, category and status do.</p></div>
+        <div class="kpis" id="deal-counts"></div>
+        <div class="panel">
+          <h2 id="deals-title">All deals</h2>
+          <div class="sub" id="deals-note"></div>
+          <div class="table-wrap"><table id="deals-table">
+            <thead><tr><th>Business and deal</th><th>Status</th><th>Category</th><th>City</th><th>Live until</th><th>Submitted</th><th>Vendor</th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div class="empty-note" id="deals-empty" style="display:none">No deals match these filters.</div>
+        </div>
+      </section>
+
+      <!-- Discovery -->
+      <section class="sec" id="sec-discovery">
+        <div class="sec-head"><h1>Discovery</h1><p>Are people finding Awzsome and finding what they look for?</p></div>
+        <div class="scope" data-scope></div>
+        <div class="kpis" data-group="discovery"></div>
+        <div class="panel">
+          <h2>By category</h2>
+          <div class="sub">Select a row to see its city breakdown. Uses the city filter only.</div>
+          <div class="table-wrap"><table id="cat-table">
+            <thead><tr><th></th><th>Category</th><th>Searches</th><th>Deals viewed</th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div class="empty-note" id="cat-empty" style="display:none">No search activity in this period.</div>
+        </div>
+      </section>
+
+      <!-- Conversion -->
+      <section class="sec" id="sec-conversion">
+        <div class="sec-head"><h1>Conversion</h1><p>How much browsing turns into claimed and redeemed deals.</p></div>
+        <div class="scope" data-scope></div>
+        <div class="kpis" data-group="conversion"></div>
+        <div class="panel">
+          <h2>By city</h2>
+          <div class="sub">Select a row to see its category breakdown. Uses the category filter only.</div>
+          <div class="table-wrap"><table id="city-table">
+            <thead><tr><th></th><th>City</th><th>Searches</th><th>Views</th><th>Claims</th><th>Zero-result</th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div class="empty-note" id="city-empty" style="display:none">No activity in this period.</div>
+        </div>
+      </section>
+
+      <!-- Vendor pipeline -->
+      <section class="sec" id="sec-pipeline">
+        <div class="sec-head"><h1>Vendor pipeline</h1><p>How many vendors start, finish and get approved. City and category filters don't apply, because neither is known when a submission starts.</p></div>
+        <div class="scope" data-scope></div>
+        <div class="kpis" data-group="pipeline"></div>
+        <div class="panel">
+          <h2>Submission funnel</h2>
+          <div class="sub">Each step as a share of submissions started.</div>
+          <div class="funnel" id="funnel"></div>
+          <div class="empty-note" id="funnel-empty" style="display:none">No vendor activity in this period.</div>
+        </div>
+      </section>
+
+      <!-- Demand gaps -->
+      <section class="sec" id="sec-gaps">
+        <div class="sec-head"><h1>Demand gaps</h1><p>Where people searched and found nothing. The strongest signal for which vendors to recruit next.</p></div>
+        <div class="scope" data-scope></div>
+        <div class="cols">
+          <div class="panel">
+            <h2>Gaps by city and category</h2>
+            <div class="sub">Uses the time window only.</div>
+            <div class="table-wrap"><table id="gaps-table" style="min-width:320px">
+              <thead><tr><th>City</th><th>Category</th><th>Empty searches</th></tr></thead>
+              <tbody></tbody>
+            </table></div>
+            <div class="empty-note" id="gaps-empty" style="display:none">No demand gaps in this period.</div>
+          </div>
+          <div class="panel">
+            <h2>What people typed</h2>
+            <div class="sub">The most recent searches that returned nothing.</div>
+            <div class="table-wrap"><table id="zero-table">
+              <thead><tr><th>Search</th><th>City</th><th>Category</th><th>When</th></tr></thead>
+              <tbody></tbody>
+            </table></div>
+            <div class="empty-note" id="zero-empty" style="display:none">No empty searches in this period.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Access requests (owners only) -->
+      <section class="sec" id="sec-access">
+        <div class="sec-head"><h1>Access requests</h1><p>People asking to use this dashboard. Approving grants access immediately.</p></div>
+        <div class="panel">
           <div class="table-wrap"><table id="requests-table">
             <thead><tr><th>Email</th><th>Requesting</th><th>Requested</th><th></th></tr></thead>
             <tbody></tbody>
           </table></div>
           <div class="empty-note" id="requests-empty" style="display:none">No pending requests.</div>
         </div>
-
-        <div id="stat-grid"></div>
-
-        <div class="panel" id="deals-panel">
-          <h2>Deals</h2>
-          <div class="sub" id="deals-sub">Current state of every deal. Not affected by the time window; the city and category filters apply.</div>
-          <div class="deal-tabs" id="deal-tabs"></div>
-          <div class="table-wrap"><table id="deals-table">
-            <thead><tr><th>Business &amp; deal</th><th>Status</th><th>Category</th><th>City</th><th>Live until</th><th>Submitted</th><th>Vendor</th></tr></thead>
-            <tbody></tbody>
-          </table></div>
-          <div class="empty-note" id="deals-empty" style="display:none">No deals in this view.</div>
-        </div>
-
-        <div class="panel">
-          <h2>Demand gaps</h2>
-          <div class="sub">City + category combinations where searches came back empty — the strongest signal for where to recruit vendors next.</div>
-          <div class="table-wrap"><table id="gaps-table">
-            <thead><tr><th>City</th><th>Category</th><th>Zero-result searches</th></tr></thead>
-            <tbody></tbody>
-          </table></div>
-          <div class="empty-note" id="gaps-empty" style="display:none">No demand gaps in this window.</div>
-        </div>
-
-        <div class="panel">
-          <h2>By category</h2>
-          <div class="sub">Click a row to see its city breakdown.</div>
-          <div class="table-wrap"><table id="cat-table">
-            <thead><tr><th></th><th>Category</th><th>Searches</th><th>Deals viewed</th></tr></thead>
-            <tbody></tbody>
-          </table></div>
-          <div class="empty-note" id="cat-empty" style="display:none">No search activity in this window.</div>
-        </div>
-
-        <div class="panel">
-          <h2>By city</h2>
-          <div class="sub">Click a row to see its category breakdown.</div>
-          <div class="table-wrap"><table id="city-table">
-            <thead><tr><th></th><th>City</th><th>Searches</th><th>Views</th><th>Claims</th><th>Zero-result</th></tr></thead>
-            <tbody></tbody>
-          </table></div>
-          <div class="empty-note" id="city-empty" style="display:none">No activity in this window.</div>
-        </div>
-
-        <div class="panel">
-          <h2>Vendor funnel</h2>
-          <div class="sub">Not affected by the city/category filters — the category isn't known yet at the moment a submission starts.</div>
-          <div class="funnel" id="funnel"></div>
-          <div class="empty-note" id="funnel-empty" style="display:none">No vendor activity in this window.</div>
-        </div>
-
-        <div class="panel">
-          <h2>Zero-result searches</h2>
-          <div class="table-wrap"><table id="zero-table">
-            <thead><tr><th>Query</th><th>City</th><th>Category</th><th>When</th></tr></thead>
-            <tbody></tbody>
-          </table></div>
-          <div class="empty-note" id="zero-empty" style="display:none">No zero-result searches in this window.</div>
-        </div>
-
-        <div class="panel">
-          <h2>Trend</h2>
-          <div class="chart-legend">
-            <span><i class="a"></i>Searches</span>
-            <span><i class="b"></i>Claims</span>
-            <span><i class="c"></i>Active users</span>
-          </div>
-          <div id="trend-chart"></div>
-          <div class="empty-note" id="trend-empty" style="display:none">No activity to chart in this window.</div>
-        </div>
-      </div>
+      </section>
     </div>
-  </div>
+  </main>
 </div>
 
 <!-- Same wordmark logo generator as awzsome.com, for visual consistency -->
@@ -452,86 +565,107 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
 })();
 </script>
 
-<!-- Auth logic: Google Sign-In -> POST /admin/verify -> store session token -->
+<!-- Dashboard logic: Google Sign-In -> POST /admin/verify -> session token -> sections -->
 <script>
 (function(){
   // Update this if the bot's Render URL ever changes.
   const API_BASE = 'https://awzsome-consumer-dev.onrender.com';
-  // Replace with your real Client ID if this page is ever copied to a new project.
   const GOOGLE_CLIENT_ID = '639642249618-mq2qd62e9npk3s026rkv1kmuoft7tsg9.apps.googleusercontent.com';
 
-  const statusEl        = document.getElementById('status');
-  const signinCard      = document.getElementById('signin-card');
-  const dashCard        = document.getElementById('dash-card');
-  const dashStatus      = document.getElementById('dash-status');
-  const winSelect       = document.getElementById('win-select');
-  const customRangeDiv  = document.getElementById('custom-range');
-  const rangeFrom       = document.getElementById('range-from');
-  const rangeTo         = document.getElementById('range-to');
-  const citySelect      = document.getElementById('city-select');
-  const catSelect       = document.getElementById('cat-select');
-  const requestSection  = document.getElementById('request-section');
-  const requestStatusEl = document.getElementById('request-status-msg');
-  const requestForm     = document.getElementById('request-form');
-  const requestRoleSel  = document.getElementById('request-role-select');
-  const requestSubmit   = document.getElementById('request-submit-btn');
-  const requestsPanel   = document.getElementById('requests-panel');
+  const $ = (id) => document.getElementById(id);
+  const statusEl        = $('status');
+  const signinWrap      = $('signin-wrap');
+  const appEl           = $('app');
+  const whoEl           = $('who');
+  const dashStatus      = $('dash-status');
+  const winSelect       = $('win-select');
+  const customRangeDiv  = $('custom-range');
+  const rangeFrom       = $('range-from');
+  const rangeTo         = $('range-to');
+  const citySelect      = $('city-select');
+  const catSelect       = $('cat-select');
+  const statusSelect    = $('status-select');
+  const statusFld       = $('status-fld');
+  const applyBtn        = $('apply-btn');
+  const requestSection  = $('request-section');
+  const requestStatusEl = $('request-status-msg');
+  const requestForm     = $('request-form');
+  const requestRoleSel  = $('request-role-select');
+  const requestSubmit   = $('request-submit-btn');
 
   // Kept in memory (never stored) so "Request access" can reuse the same
   // Google credential without asking the person to sign in a second time.
   let lastCredential = null;
+  let currentRole = null;
+  let currentSection = 'overview';
 
-  // Stats grouped into three clusters that mirror how a CEO actually thinks
-  // about the funnel: are people finding us, are they converting, and is the
-  // vendor pipeline healthy. 'kind' still drives the color (neutral/good/warn).
-  const STAT_GROUPS = [
-    {
-      title: 'Discovery',
-      stats: [
-        { key: 'active_users',        lbl: 'Active users',           kind: 'neutral' },
-        { key: 'search_performed',    lbl: 'Searches',                kind: 'neutral' },
-        { key: 'search_zero_results', lbl: 'Zero-result searches',    kind: 'warn'    },
-        { key: 'deal_viewed',         lbl: 'Deals viewed',            kind: 'neutral' },
-        { key: 'share_created',       lbl: 'Shares created',          kind: 'neutral' },
-        { key: 'share_arrival',       lbl: 'Arrivals from a share',   kind: 'neutral' },
-      ],
-    },
-    {
-      title: 'Conversion',
-      stats: [
-        { key: 'deal_claimed',          lbl: 'Deals claimed',         kind: 'good' },
-        { key: 'redemption_confirmed',  lbl: 'Redemptions confirmed', kind: 'good' },
-      ],
-    },
-    {
-      title: 'Vendor pipeline',
-      stats: [
-        { key: 'vendor_submission_started',   lbl: 'Submissions started',   kind: 'neutral' },
-        { key: 'vendor_submission_completed', lbl: 'Submissions completed', kind: 'good'    },
-        { key: 'vendor_submission_abandoned', lbl: 'Submissions abandoned', kind: 'warn'    },
-        { key: 'deal_approved',               lbl: 'Deals approved',        kind: 'good'    },
-        { key: 'deal_rejected',               lbl: 'Deals rejected',        kind: 'warn'    },
-      ],
-    },
+  // What the data on screen was loaded with. The dropdowns can be changed
+  // freely; nothing reloads until Apply copies them in here.
+  const DEFAULTS = { win: '10080', from: '', to: '', city: '', cat: '', status: 'all' };
+  let applied = Object.assign({}, DEFAULTS);
+
+  // Latest responses, so the Overview can combine several of them.
+  const data = { overview: null, deals: null, requests: null, zero: null };
+
+  const SECTIONS = ['overview', 'deals', 'discovery', 'conversion', 'pipeline', 'gaps', 'access'];
+
+  // Stat groups, each shown on its own section. 'kind' drives the dot color
+  // and which direction of change counts as good.
+  const STAT_GROUPS = {
+    discovery: [
+      { key: 'active_users',        lbl: 'Active users',          kind: 'neutral' },
+      { key: 'search_performed',    lbl: 'Searches',              kind: 'neutral' },
+      { key: 'search_zero_results', lbl: 'Zero-result searches',  kind: 'warn'    },
+      { key: 'deal_viewed',         lbl: 'Deals viewed',          kind: 'neutral' },
+      { key: 'share_created',       lbl: 'Shares created',        kind: 'neutral' },
+      { key: 'share_arrival',       lbl: 'Arrivals from a share', kind: 'neutral' },
+    ],
+    conversion: [
+      { key: 'deal_viewed',           lbl: 'Deals viewed',          kind: 'neutral' },
+      { key: 'deal_claimed',          lbl: 'Deals claimed',         kind: 'good'    },
+      { key: 'redemption_confirmed',  lbl: 'Redemptions confirmed', kind: 'good'    },
+    ],
+    pipeline: [
+      { key: 'vendor_submission_started',   lbl: 'Submissions started',   kind: 'neutral' },
+      { key: 'vendor_submission_completed', lbl: 'Submissions completed', kind: 'good'    },
+      { key: 'vendor_submission_abandoned', lbl: 'Submissions abandoned', kind: 'warn'    },
+      { key: 'deal_approved',               lbl: 'Deals approved',        kind: 'good'    },
+      { key: 'deal_rejected',               lbl: 'Deals rejected',        kind: 'warn'    },
+    ],
+  };
+  const OVERVIEW_KPIS = [
+    { key: 'active_users',     lbl: 'Active users',  kind: 'neutral' },
+    { key: 'search_performed', lbl: 'Searches',      kind: 'neutral' },
+    { key: 'deal_viewed',      lbl: 'Deals viewed',  kind: 'neutral' },
+    { key: 'deal_claimed',     lbl: 'Deals claimed', kind: 'good'    },
   ];
 
-  function showSignedIn(email, role) {
-    document.getElementById('who-email').textContent = email;
-    document.getElementById('who-role').textContent = role;
-    signinCard.style.display = 'none';
-    dashCard.classList.add('show');
-    requestsPanel.style.display = role === 'owner' ? '' : 'none';
-    loadFilters().then(loadDashboard);
-    if (role === 'owner') loadRequests();
+  // Deal text comes from vendors, so everything is escaped before it goes
+  // into the page — otherwise a vendor could put HTML/script in an offer.
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  // Shows the right thing under the sign-in button based on what /verify
-  // reported: nothing on file yet (show the request form), a pending
-  // request (just wait), or a declined one (let them try again).
+  // ── Sign-in ────────────────────────────────────────────────────────────────
+  function showSignedIn(email, role) {
+    currentRole = role;
+    $('who-email').textContent = email;
+    $('who-role').textContent = role;
+    whoEl.classList.add('show');
+    signinWrap.style.display = 'none';
+    appEl.classList.add('show');
+    document.querySelectorAll('.owner-only').forEach(el => { el.style.display = role === 'owner' ? '' : 'none'; });
+    const fromHash = location.hash.replace('#', '');
+    showSection(SECTIONS.includes(fromHash) && (fromHash !== 'access' || role === 'owner') ? fromHash : 'overview');
+    loadFilters().then(loadAll);
+  }
+
   function showRequestSection(requestStatus) {
     requestSection.style.display = '';
     if (requestStatus === 'pending') {
-      requestStatusEl.textContent = 'Your access request is awaiting approval.';
+      requestStatusEl.textContent = 'Your access request is waiting for approval.';
       requestStatusEl.classList.remove('err');
       requestForm.style.display = 'none';
     } else if (requestStatus === 'rejected') {
@@ -539,7 +673,7 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
       requestStatusEl.classList.add('err');
       requestForm.style.display = '';
     } else {
-      requestStatusEl.textContent = 'No account found for this Google login yet — request access below.';
+      requestStatusEl.textContent = 'This Google account has no access yet. Request it below.';
       requestStatusEl.classList.remove('err');
       requestForm.style.display = '';
     }
@@ -556,18 +690,18 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential: response.credential }),
       });
-      const data = await r.json();
+      const d = await r.json();
       if (!r.ok) {
-        statusEl.textContent = data.error || 'Sign-in failed.';
+        statusEl.textContent = d.error || 'Sign-in failed.';
         statusEl.classList.add('err');
-        if ('requestStatus' in data) showRequestSection(data.requestStatus);
+        if ('requestStatus' in d) showRequestSection(d.requestStatus);
         return;
       }
-      localStorage.setItem('awzsome_admin_token', data.token);
+      localStorage.setItem('awzsome_admin_token', d.token);
       statusEl.textContent = '';
-      showSignedIn(data.email, data.role);
+      showSignedIn(d.email, d.role);
     } catch (e) {
-      statusEl.textContent = 'Could not reach the server. Please try again.';
+      statusEl.textContent = 'Could not reach the server. Try again.';
       statusEl.classList.add('err');
     }
   }
@@ -583,17 +717,17 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential: lastCredential, requested_role: requestRoleSel.value }),
       });
-      const data = await r.json();
+      const d = await r.json();
       if (!r.ok) {
-        requestStatusEl.textContent = data.error || 'Could not submit request.';
+        requestStatusEl.textContent = d.error || 'Could not send the request.';
         requestStatusEl.classList.add('err');
       } else {
-        requestStatusEl.textContent = 'Request sent — you will be able to sign in once approved.';
+        requestStatusEl.textContent = 'Request sent. You can sign in once it is approved.';
         requestStatusEl.classList.remove('err');
         requestForm.style.display = 'none';
       }
     } catch (e) {
-      requestStatusEl.textContent = 'Could not reach the server. Please try again.';
+      requestStatusEl.textContent = 'Could not reach the server. Try again.';
       requestStatusEl.classList.add('err');
     } finally {
       requestSubmit.disabled = false;
@@ -603,461 +737,332 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
 
   function signOut() {
     localStorage.removeItem('awzsome_admin_token');
-    dashCard.classList.remove('show');
-    signinCard.style.display = '';
+    appEl.classList.remove('show');
+    whoEl.classList.remove('show');
+    signinWrap.style.display = '';
   }
 
-  // Wraps fetch with the stored token; if the server says the session is no
-  // longer valid (expired, or revoked by removing the admin_users row), sign
-  // out cleanly instead of showing a confusing half-broken dashboard.
-  // opts.method/opts.body let this also drive the POST decide action —
-  // every existing GET call site is untouched since opts is optional.
+  // Wraps fetch with the stored token; a 401 signs out cleanly instead of
+  // leaving a half-broken dashboard on screen.
   async function authFetch(path, opts) {
     const token = localStorage.getItem('awzsome_admin_token');
     const headers = { Authorization: 'Bearer ' + token };
-    if (opts?.body) headers['Content-Type'] = 'application/json';
+    if (opts && opts.body) headers['Content-Type'] = 'application/json';
     const r = await fetch(API_BASE + path, {
-      method: opts?.method || 'GET',
+      method: (opts && opts.method) || 'GET',
       headers,
-      body: opts?.body ? JSON.stringify(opts.body) : undefined,
+      body: opts && opts.body ? JSON.stringify(opts.body) : undefined,
     });
     if (r.status === 401) { signOut(); throw new Error('session expired'); }
     if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.error || ('request failed: ' + path)); }
     return r.json();
   }
 
-  async function loadRequests() {
-    try {
-      const data = await authFetch('/admin/requests?status=pending');
-      renderRequests(data.requests);
-    } catch (e) {
-      if (e.message !== 'session expired') console.error('loadRequests failed:', e);
-    }
+  // ── Sections ───────────────────────────────────────────────────────────────
+  function showSection(name) {
+    currentSection = name;
+    SECTIONS.forEach(s => $('sec-' + s).classList.toggle('on', s === name));
+    document.querySelectorAll('.nav-item').forEach(b => {
+      const on = b.dataset.sec === name;
+      b.classList.toggle('on', on);
+      if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    const onDeals = name === 'deals';
+    statusSelect.disabled = !onDeals;
+    statusFld.classList.toggle('off', !onDeals);
+    if (history.replaceState) history.replaceState(null, '', '#' + name);
+    // The trend chart sizes itself to its container, which has no width
+    // while hidden — redraw it once the Overview is actually visible.
+    if (name === 'overview' && lastTrend) renderTrend(lastTrend);
+    window.scrollTo(0, 0);
   }
+  document.querySelectorAll('.nav-item').forEach(b =>
+    b.addEventListener('click', () => {
+      showSection(b.dataset.sec);
+      if (window.innerWidth <= 900) b.scrollIntoView({ inline: 'center', block: 'nearest' });
+    }));
 
-  function renderRequests(requests) {
-    const tbody = document.querySelector('#requests-table tbody');
-    const empty = document.getElementById('requests-empty');
-    tbody.innerHTML = '';
-    if (!requests.length) { empty.style.display = ''; return; }
-    empty.style.display = 'none';
-    for (const req of requests) {
-      const tr = document.createElement('tr');
-      const when = new Date(req.requested_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-      const roleLbl = req.requested_role === 'owner' ? 'Full access' : 'View access';
-      tr.innerHTML = '<td>' + req.email + '</td><td>' + roleLbl + '</td><td>' + when + '</td>';
-      const actionTd = document.createElement('td');
-      actionTd.className = 'req-actions';
-      const approveBtn = document.createElement('button');
-      approveBtn.className = 'btn-sm approve'; approveBtn.textContent = 'Approve';
-      const rejectBtn = document.createElement('button');
-      rejectBtn.className = 'btn-sm reject'; rejectBtn.textContent = 'Reject';
-      [approveBtn, rejectBtn].forEach(btn => btn.addEventListener('click', async () => {
-        approveBtn.disabled = true; rejectBtn.disabled = true;
-        try {
-          await authFetch('/admin/requests/' + req.id + '/decide', { method: 'POST', body: { approve: btn === approveBtn } });
-          loadRequests(); // just refresh the list rather than hand-patch one row
-        } catch (e) {
-          approveBtn.disabled = false; rejectBtn.disabled = false;
-          alert(e.message || 'Could not decide that request.');
-        }
-      }));
-      actionTd.appendChild(approveBtn);
-      actionTd.appendChild(rejectBtn);
-      tr.appendChild(actionTd);
-      tbody.appendChild(tr);
-    }
+  // ── Filters ────────────────────────────────────────────────────────────────
+  function readUI() {
+    return {
+      win: winSelect.value, from: rangeFrom.value, to: rangeTo.value,
+      city: citySelect.value, cat: catSelect.value, status: statusSelect.value,
+    };
   }
+  function writeUI(f) {
+    winSelect.value = f.win; rangeFrom.value = f.from; rangeTo.value = f.to;
+    citySelect.value = f.city; catSelect.value = f.cat; statusSelect.value = f.status;
+    customRangeDiv.classList.toggle('show', f.win === 'custom');
+  }
+  function isDirty() {
+    const u = readUI();
+    return Object.keys(DEFAULTS).some(k => u[k] !== applied[k]);
+  }
+  function refreshApply() {
+    const dirty = isDirty();
+    applyBtn.classList.toggle('dirty', dirty);
+    applyBtn.textContent = dirty ? 'Apply filters' : 'Apply';
+  }
+  [winSelect, rangeFrom, rangeTo, citySelect, catSelect, statusSelect].forEach(el =>
+    el.addEventListener('change', () => {
+      customRangeDiv.classList.toggle('show', winSelect.value === 'custom');
+      refreshApply();
+    }));
 
-  // The window portion alone — either an explicit since/until range (when
-  // "Custom range" is selected and both dates are filled in) or the preset
-  // minutes lookback. Falls back to the preset if the custom dates aren't
-  // both set yet, so an in-progress date pick never sends a broken request.
+  async function applyFilters() {
+    const u = readUI();
+    if (u.win === 'custom' && !(u.from && u.to)) {
+      dashStatus.textContent = 'Pick both a From and a To date for a custom range.';
+      dashStatus.classList.add('err');
+      return;
+    }
+    const windowChanged = u.win !== applied.win || u.from !== applied.from || u.to !== applied.to;
+    const onlyStatus = !windowChanged && u.city === applied.city && u.cat === applied.cat;
+    applied = u;
+    refreshApply();
+    if (onlyStatus) { renderDeals(); return; } // status is filtered in the page, no reload needed
+    if (windowChanged) {
+      await loadFilters();
+      applied.city = citySelect.value; // may have been cleared if no longer offered
+      applied.cat = catSelect.value;
+    }
+    loadAll();
+  }
+  applyBtn.addEventListener('click', () => { if (isDirty()) applyFilters(); });
+
+  $('reset-filters').addEventListener('click', function(e){
+    e.preventDefault();
+    writeUI(DEFAULTS);
+    applyFilters();
+  });
+
   function windowParams() {
-    if (winSelect.value === 'custom') {
-      if (rangeFrom.value && rangeTo.value) {
-        const since = new Date(rangeFrom.value + 'T00:00:00').toISOString();
-        const until = new Date(rangeTo.value + 'T23:59:59').toISOString();
-        return 'since=' + encodeURIComponent(since) + '&until=' + encodeURIComponent(until);
-      }
-      return 'minutes=10080'; // custom picked but dates incomplete — safe fallback
+    if (applied.win === 'custom' && applied.from && applied.to) {
+      const since = new Date(applied.from + 'T00:00:00').toISOString();
+      const until = new Date(applied.to + 'T23:59:59').toISOString();
+      return 'since=' + encodeURIComponent(since) + '&until=' + encodeURIComponent(until);
     }
-    return 'minutes=' + winSelect.value;
+    return 'minutes=' + (applied.win === 'custom' ? '10080' : applied.win);
   }
-
-  // Builds the shared window + city + category query suffix, for every
-  // endpoint that respects filters.
-  function filterQS() {
+  function filterQS(opts) {
     const parts = [windowParams()];
-    if (citySelect.value) parts.push('city=' + encodeURIComponent(citySelect.value));
-    if (catSelect.value) parts.push('category=' + encodeURIComponent(catSelect.value));
+    if (applied.city && !(opts && opts.noCity)) parts.push('city=' + encodeURIComponent(applied.city));
+    if (applied.cat && !(opts && opts.noCat)) parts.push('category=' + encodeURIComponent(applied.cat));
     return parts.join('&');
   }
 
-  winSelect.addEventListener('change', () => {
-    customRangeDiv.style.display = winSelect.value === 'custom' ? '' : 'none';
-  });
-  [rangeFrom, rangeTo].forEach(el => el.addEventListener('change', () => {
-    if (winSelect.value === 'custom' && rangeFrom.value && rangeTo.value) {
-      loadFilters().then(loadDashboard);
-    }
-  }));
-
-  function fmtTime(iso, bucketMinutes) {
-    const d = new Date(iso);
-    return bucketMinutes >= 1440
-      ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-      : d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  function scopeText() {
+    let when;
+    if (applied.win === 'custom') when = fmtDay(applied.from) + ' to ' + fmtDay(applied.to);
+    else when = (winSelect.querySelector('option[value="' + applied.win + '"]') || {}).textContent || 'Last 1 week';
+    return 'Showing <b>' + esc(when.toLowerCase()) + '</b> compared with the period before, for <b>' +
+      esc(applied.city || 'all cities') + '</b> and <b>' + esc(applied.cat || 'all categories') + '</b>.';
   }
 
-  // Populates the city/category dropdowns from what actually appears in the
-  // current window — never a hardcoded list, so it's always accurate and
-  // never offers a filter that would just show an empty dashboard.
+  // City/category options come from what actually appears in the period,
+  // so a filter never leads to an empty dashboard.
   async function loadFilters() {
     const prevCity = citySelect.value, prevCat = catSelect.value;
     try {
-      const data = await authFetch('/admin/stats/filters?' + windowParams());
+      const d = await authFetch('/admin/stats/filters?' + windowParams());
       citySelect.innerHTML = '<option value="">All cities</option>' +
-        data.cities.map(c => '<option value="' + c + '">' + c + '</option>').join('');
+        d.cities.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join('');
       catSelect.innerHTML = '<option value="">All categories</option>' +
-        data.categories.map(c => '<option value="' + c + '">' + c + '</option>').join('');
-      // Keep the previous selection if it still exists in the new window.
-      if (data.cities.includes(prevCity)) citySelect.value = prevCity;
-      if (data.categories.includes(prevCat)) catSelect.value = prevCat;
+        d.categories.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join('');
+      citySelect.value = d.cities.includes(prevCity) ? prevCity : '';
+      catSelect.value = d.categories.includes(prevCat) ? prevCat : '';
     } catch (e) {
       if (e.message !== 'session expired') console.error('loadFilters failed:', e);
     }
   }
 
-  // Turns a % change (or null, meaning no previous-period baseline) into a
-  // small colored badge. Polarity flips for 'warn'-kind stats: a rise in
-  // zero-results or abandonments is the bad direction, not the good one.
+  // ── Loading ────────────────────────────────────────────────────────────────
+  async function loadAll() {
+    dashStatus.textContent = 'Loading...';
+    dashStatus.classList.remove('err');
+    document.querySelectorAll('[data-scope]').forEach(el => { el.innerHTML = scopeText(); });
+
+    const dealParts = [];
+    if (applied.city) dealParts.push('city=' + encodeURIComponent(applied.city));
+    if (applied.cat) dealParts.push('category=' + encodeURIComponent(applied.cat));
+
+    const jobs = {
+      overview:   authFetch('/admin/stats/overview?' + filterQS()),
+      categories: authFetch('/admin/stats/categories?' + filterQS({ noCat: true })),
+      cities:     authFetch('/admin/stats/cities?' + filterQS({ noCity: true })),
+      gaps:       authFetch('/admin/stats/gaps?' + windowParams()),
+      funnel:     authFetch('/admin/stats/vendor-funnel?' + windowParams()),
+      zero:       authFetch('/admin/stats/zero-results?' + filterQS()),
+      trend:      authFetch('/admin/stats/timeseries?' + filterQS()),
+      deals:      authFetch('/admin/deals' + (dealParts.length ? '?' + dealParts.join('&') : '')),
+    };
+    if (currentRole === 'owner') jobs.requests = authFetch('/admin/requests?status=pending');
+
+    const keys = Object.keys(jobs);
+    const results = await Promise.allSettled(keys.map(k => jobs[k]));
+    if (results.some(r => r.status === 'rejected' && r.reason && r.reason.message === 'session expired')) return;
+
+    const failed = [];
+    const ok = {};
+    results.forEach((r, i) => {
+      if (r.status === 'fulfilled') ok[keys[i]] = r.value;
+      else { failed.push(keys[i]); console.error('load ' + keys[i] + ' failed:', r.reason); }
+    });
+
+    if (ok.overview)   { data.overview = ok.overview; ['discovery', 'conversion', 'pipeline'].forEach(g => renderKpis(document.querySelector('[data-group="' + g + '"]'), STAT_GROUPS[g], ok.overview)); }
+    if (ok.categories) renderCategories(ok.categories);
+    if (ok.cities)     renderCities(ok.cities);
+    if (ok.gaps)       renderGaps(ok.gaps);
+    if (ok.funnel)     renderFunnel(ok.funnel);
+    if (ok.zero)       { data.zero = ok.zero; renderZeroResults(ok.zero); }
+    if (ok.trend)      renderTrend(ok.trend);
+    if (ok.deals)      { data.deals = ok.deals; renderDeals(); }
+    if (ok.requests)   { data.requests = ok.requests.requests || []; renderRequests(data.requests); }
+    renderOverview();
+    renderBadges();
+
+    if (failed.length) {
+      dashStatus.textContent = 'Some sections could not load (' + failed.join(', ') + '). Refresh the page to try again.' +
+        (failed.includes('deals') ? ' If Deals is missing, check that the latest admin_api.js is live on Render.' : '');
+      dashStatus.classList.add('err');
+    } else {
+      dashStatus.classList.remove('err');
+      dashStatus.textContent = ok.overview && ok.overview.truncated
+        ? 'Showing the most recent 5,000 events in this period, so actual totals may be higher.'
+        : '';
+    }
+  }
+
+  // ── KPI cells ──────────────────────────────────────────────────────────────
+  // A rise in a 'warn' stat (empty searches, abandonments) is the bad direction.
   function changeBadge(pct, kind) {
     if (pct === null || pct === undefined) return '<span class="chg flat">new</span>';
     if (pct === 0) return '<span class="chg flat">no change</span>';
     const rose = pct > 0;
-    const isGoodDirection = kind === 'warn' ? !rose : rose;
-    const arrow = rose ? '&#8593;' : '&#8595;';
-    return '<span class="chg ' + (isGoodDirection ? 'up' : 'down') + '">' + arrow + ' ' + Math.abs(pct) + '%</span>';
+    const good = kind === 'warn' ? !rose : rose;
+    return '<span class="chg ' + (good ? 'up' : 'down') + '">' + (rose ? '&#8593;' : '&#8595;') + ' ' + Math.abs(pct) + '%</span>';
   }
-
-  function renderStatCards(overview) {
-    const host = document.getElementById('stat-grid');
+  function kpiHTML(n, lbl, kind, badge) {
+    return '<div class="n">' + esc(n) + '</div><div class="lbl"><i></i>' + esc(lbl) + '</div>' + (badge || '');
+  }
+  function renderKpis(host, stats, ov) {
+    if (!host) return;
     host.innerHTML = '';
-    for (const group of STAT_GROUPS) {
-      const groupDiv = document.createElement('div');
-      groupDiv.className = 'stat-group';
-      const h3 = document.createElement('h3');
-      h3.textContent = group.title;
-      groupDiv.appendChild(h3);
-      const grid = document.createElement('div');
-      grid.className = 'stat-grid';
-      for (const s of group.stats) {
-        const n = s.key === 'active_users' ? overview.active_users : (overview.counts[s.key] || 0);
-        const pct = overview.changes ? overview.changes[s.key] : undefined;
-        const div = document.createElement('div');
-        div.className = 'stat-card ' + s.kind;
-        div.innerHTML = '<div class="n">' + n + '</div><div class="lbl">' + s.lbl + '</div>' + changeBadge(pct, s.kind);
-        grid.appendChild(div);
-      }
-      groupDiv.appendChild(grid);
-      host.appendChild(groupDiv);
+    for (const s of stats) {
+      const n = s.key === 'active_users' ? ov.active_users : (ov.counts[s.key] || 0);
+      const pct = ov.changes ? ov.changes[s.key] : undefined;
+      const div = document.createElement('div');
+      div.className = 'kpi ' + s.kind;
+      div.innerHTML = kpiHTML(n, s.lbl, s.kind, changeBadge(pct, s.kind));
+      host.appendChild(div);
     }
   }
 
-  // Shared drill-down row builder: a clickable summary row plus a hidden
-  // nested-table row that toggles open/closed, used by both the category and
-  // city tables since they are structural mirrors of each other.
-  function buildDrillRow(cols, subRows, subHeaders, colSpan) {
-    const tr = document.createElement('tr');
-    tr.className = 'drill-row';
-    tr.innerHTML = '<td><span class="drill-icon">&#9656;</span></td>' + cols;
-    const sub = document.createElement('tr');
-    sub.className = 'drill-panel';
-    sub.style.display = 'none';
-    const subTd = document.createElement('td');
-    subTd.colSpan = colSpan;
-    if (subRows.length) {
-      subTd.innerHTML = '<div class="drill-inner"><div class="table-wrap"><table><thead><tr>' +
-        subHeaders.map(h => '<th>' + h + '</th>').join('') +
-        '</tr></thead><tbody>' + subRows + '</tbody></table></div></div>';
-    } else {
-      subTd.innerHTML = '<div class="drill-inner">No breakdown available.</div>';
-    }
-    sub.appendChild(subTd);
-    tr.addEventListener('click', () => {
-      const open = sub.style.display !== 'none';
-      sub.style.display = open ? 'none' : '';
-      tr.querySelector('.drill-icon').classList.toggle('open', !open);
-    });
-    return [tr, sub];
-  }
-
-  // Bar length is relative to the largest single value across BOTH columns,
-  // so bars stay visually comparable across every row, not just within one.
-  function renderCategories(data) {
-    const tbody = document.querySelector('#cat-table tbody');
-    const empty = document.getElementById('cat-empty');
-    tbody.innerHTML = '';
-    if (!data.categories.length) { empty.style.display = ''; return; }
-    empty.style.display = 'none';
-    const max = Math.max(1, ...data.categories.flatMap(c => [c.searches, c.views]));
-    for (const c of data.categories) {
-      const sPct = Math.round((c.searches / max) * 100);
-      const vPct = Math.round((c.views / max) * 100);
-      const cols =
-        '<td>' + (c.category || 'unknown') + '</td>' +
-        '<td><div class="bar-cell"><span class="bar-num">' + c.searches + '</span>' +
-          '<div class="bar-track"><div class="bar-fill a" style="width:' + sPct + '%"></div></div></div></td>' +
-        '<td><div class="bar-cell"><span class="bar-num">' + c.views + '</span>' +
-          '<div class="bar-track"><div class="bar-fill b" style="width:' + vPct + '%"></div></div></div></td>';
-      const subRows = c.by_city.map(bc =>
-        '<tr><td>' + bc.city + '</td><td>' + bc.searches + '</td><td>' + bc.views + '</td></tr>').join('');
-      const [tr, sub] = buildDrillRow(cols, subRows, ['City', 'Searches', 'Views'], 4);
-      tbody.appendChild(tr);
-      tbody.appendChild(sub);
-    }
-  }
-
-  function renderCities(data) {
-    const tbody = document.querySelector('#city-table tbody');
-    const empty = document.getElementById('city-empty');
-    tbody.innerHTML = '';
-    if (!data.cities.length) { empty.style.display = ''; return; }
-    empty.style.display = 'none';
-    for (const c of data.cities) {
-      const cols =
-        '<td>' + c.city + '</td><td>' + c.searches + '</td><td>' + c.views + '</td>' +
-        '<td>' + c.claims + '</td><td>' + c.zero_results + '</td>';
-      const subRows = c.by_category.map(bc =>
-        '<tr><td>' + bc.category + '</td><td>' + bc.searches + '</td><td>' + bc.views + '</td></tr>').join('');
-      const [tr, sub] = buildDrillRow(cols, subRows, ['Category', 'Searches', 'Views'], 6);
-      tbody.appendChild(tr);
-      tbody.appendChild(sub);
-    }
-  }
-
-  function renderGaps(data) {
-    const tbody = document.querySelector('#gaps-table tbody');
-    const empty = document.getElementById('gaps-empty');
-    tbody.innerHTML = '';
-    if (!data.gaps.length) { empty.style.display = ''; return; }
-    empty.style.display = 'none';
-    for (const g of data.gaps.slice(0, 25)) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + g.city + '</td><td>' + g.category + '</td>' +
-        '<td><span class="gap-count">' + g.count + '</span></td>';
-      tbody.appendChild(tr);
-    }
-  }
-
-  function renderFunnel(data) {
-    const host  = document.getElementById('funnel');
-    const empty = document.getElementById('funnel-empty');
+  // ── Overview ───────────────────────────────────────────────────────────────
+  function renderOverview() {
+    const host = $('ov-kpis');
     host.innerHTML = '';
-    const f = data.funnel;
-    if (!f.started && !f.completed && !f.approved && !f.rejected) { empty.style.display = ''; return; }
-    empty.style.display = 'none';
-    const steps = [
-      { lbl: 'Started',    n: f.started },
-      { lbl: 'Completed',  n: f.completed },
-      { lbl: 'Approved',   n: f.approved },
-      { lbl: 'Rejected',   n: f.rejected },
+    if (data.overview) {
+      renderKpis(host, OVERVIEW_KPIS, data.overview);
+    }
+    if (data.deals) {
+      const c = data.deals.counts || {};
+      const live = (c.active || 0) + (c.expiring || 0);
+      const div = document.createElement('div');
+      div.className = 'kpi good';
+      div.innerHTML = kpiHTML(live, 'Live deals now', 'good', '<span class="chg flat">right now</span>');
+      host.appendChild(div);
+    }
+
+    const att = $('ov-attention');
+    att.innerHTML = '';
+    const c = (data.deals && data.deals.counts) || {};
+    const rows = [
+      { t: 'Deals waiting for approval', d: 'Submitted by vendors, not live until you approve', n: c.pending || 0,
+        go: () => goDeals('pending') },
+      { t: 'Reminders due', d: 'Ending soon or ended, and the vendor has not renewed', n: c.needs_reminder || 0,
+        go: () => goDeals('needs_reminder') },
+      { t: 'Deals expiring soon', d: 'Live now, ending within ' + ((data.deals && data.deals.expiring_soon_days) || 3) + ' days', n: c.expiring || 0,
+        go: () => goDeals('expiring') },
+      { t: 'Empty searches', d: 'Searches in this period that found nothing', n: data.overview ? (data.overview.counts.search_zero_results || 0) : 0,
+        go: () => showSection('gaps') },
     ];
-    const max = Math.max(1, f.started, f.completed);
-    for (const s of steps) {
-      const pct = Math.max(4, Math.round((s.n / max) * 100));
-      const row = document.createElement('div');
-      row.className = 'funnel-step';
-      row.innerHTML =
-        '<div class="funnel-lbl">' + s.lbl + '</div>' +
-        '<div class="funnel-bar-track"><div class="funnel-bar" style="width:' + pct + '%">' + s.n + '</div></div>';
-      host.appendChild(row);
+    if (currentRole === 'owner') {
+      rows.push({ t: 'Access requests', d: 'People asking to use this dashboard', n: (data.requests || []).length,
+        go: () => showSection('access') });
     }
-    if (data.start_to_complete_pct !== null || data.approval_rate_pct !== null) {
-      const note = document.createElement('div');
-      note.className = 'funnel-pct';
-      note.style.cssText = 'margin-top:.5rem;width:auto';
-      const bits = [];
-      if (data.start_to_complete_pct !== null) bits.push(data.start_to_complete_pct + '% of started submissions were completed');
-      if (data.approval_rate_pct !== null) bits.push(data.approval_rate_pct + '% of decided deals were approved');
-      note.textContent = bits.join(' · ');
-      host.appendChild(note);
+    for (const r of rows) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'att-row' + (r.n ? '' : ' zero');
+      b.innerHTML = '<div><div class="t">' + esc(r.t) + '</div><div class="d">' + esc(r.d) + '</div></div>' +
+        '<div class="c">' + (r.n ? r.n : 'None') + '</div>';
+      b.addEventListener('click', r.go);
+      att.appendChild(b);
     }
   }
 
-  function renderZeroResults(data) {
-    const tbody = document.querySelector('#zero-table tbody');
-    const empty = document.getElementById('zero-empty');
-    tbody.innerHTML = '';
-    if (!data.results.length) { empty.style.display = ''; return; }
-    empty.style.display = 'none';
-    for (const r of data.results) {
-      const tr = document.createElement('tr');
-      const when = new Date(r.at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-      tr.innerHTML = '<td>' + (r.query || '—') + '</td><td>' + (r.city || '—') + '</td><td>' + (r.category || '—') + '</td><td>' + when + '</td>';
-      tbody.appendChild(tr);
-    }
+  function goDeals(status) {
+    statusSelect.value = status;
+    applied.status = status;
+    refreshApply();
+    renderDeals();
+    showSection('deals');
   }
 
-  // Hand-drawn grouped-bar + line SVG chart — same lightweight approach as
-  // the logo, no charting library needed for this data volume.
-  const NS = 'http://www.w3.org/2000/svg';
-  const rootStyle = getComputedStyle(document.documentElement);
-  const CHART_A = rootStyle.getPropertyValue('--chart-a').trim() || '#E85D35';
-  const CHART_B = rootStyle.getPropertyValue('--chart-b').trim() || '#16A34A';
-  const CHART_C = rootStyle.getPropertyValue('--ink').trim() || '#1C1917';
-  function renderTrend(data) {
-    const host  = document.getElementById('trend-chart');
-    const empty = document.getElementById('trend-empty');
-    host.innerHTML = '';
-    if (!data.points.length) { empty.style.display = ''; return; }
-    empty.style.display = 'none';
-
-    const W = Math.max(600, host.clientWidth || 600);
-    const H = 220;
-    const padL = 32, padB = 28, padT = 12, padR = 12;
-    const plotW = W - padL - padR;
-    const plotH = H - padT - padB;
-    const n = data.points.length;
-    const maxVal = Math.max(1, ...data.points.flatMap(p => [p.search_performed, p.deal_claimed, p.active_users]));
-
-    const groupW = plotW / n;
-    const barW = Math.max(2, Math.min(18, groupW * 0.32));
-    const gap = Math.max(1, groupW * 0.06);
-
-    const svg = document.createElementNS(NS, 'svg');
-    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', H);
-
-    const base = document.createElementNS(NS, 'line');
-    base.setAttribute('x1', padL); base.setAttribute('x2', W - padR);
-    base.setAttribute('y1', H - padB); base.setAttribute('y2', H - padB);
-    base.setAttribute('stroke', '#E7E5E4'); base.setAttribute('stroke-width', '1');
-    svg.appendChild(base);
-
-    const gridSteps = 4;
-    for (let i = 0; i <= gridSteps; i++) {
-      const val = Math.round((maxVal / gridSteps) * i);
-      const y = H - padB - (plotH * (i / gridSteps));
-      const t = document.createElementNS(NS, 'text');
-      t.setAttribute('x', padL - 8); t.setAttribute('y', y + 3);
-      t.setAttribute('text-anchor', 'end'); t.setAttribute('font-size', '10');
-      t.setAttribute('fill', '#78716C'); t.setAttribute('font-family', "'Plus Jakarta Sans',sans-serif");
-      t.textContent = val;
-      svg.appendChild(t);
-    }
-
-    const linePts = [];
-    data.points.forEach((p, i) => {
-      const gx = padL + i * groupW;
-      const sH = (p.search_performed / maxVal) * plotH;
-      const cH = (p.deal_claimed / maxVal) * plotH;
-
-      const rectA = document.createElementNS(NS, 'rect');
-      rectA.setAttribute('x', gx + groupW/2 - barW - gap/2);
-      rectA.setAttribute('y', H - padB - sH);
-      rectA.setAttribute('width', barW); rectA.setAttribute('height', sH);
-      rectA.setAttribute('rx', 2); rectA.setAttribute('fill', CHART_A);
-      svg.appendChild(rectA);
-
-      const rectB = document.createElementNS(NS, 'rect');
-      rectB.setAttribute('x', gx + groupW/2 + gap/2);
-      rectB.setAttribute('y', H - padB - cH);
-      rectB.setAttribute('width', barW); rectB.setAttribute('height', cH);
-      rectB.setAttribute('rx', 2); rectB.setAttribute('fill', CHART_B);
-      svg.appendChild(rectB);
-
-      const auH = (p.active_users / maxVal) * plotH;
-      linePts.push((gx + groupW/2) + ',' + (H - padB - auH));
-
-      const showEvery = Math.max(1, Math.ceil(n / (W / 60)));
-      if (i % showEvery === 0) {
-        const t = document.createElementNS(NS, 'text');
-        t.setAttribute('x', gx + groupW/2); t.setAttribute('y', H - padB + 16);
-        t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '10');
-        t.setAttribute('fill', '#78716C'); t.setAttribute('font-family', "'Plus Jakarta Sans',sans-serif");
-        t.textContent = fmtTime(p.t, data.bucket_minutes);
-        svg.appendChild(t);
-      }
-    });
-
-    // Active-users overlay as a line, on the same scale as the bars — kept
-    // as a thin line + dots so it reads as "trend" rather than competing
-    // visually with the two bar series underneath it.
-    if (linePts.length > 1) {
-      const poly = document.createElementNS(NS, 'polyline');
-      poly.setAttribute('points', linePts.join(' '));
-      poly.setAttribute('fill', 'none');
-      poly.setAttribute('stroke', CHART_C);
-      poly.setAttribute('stroke-width', '2');
-      svg.appendChild(poly);
-    }
-    linePts.forEach(pt => {
-      const [x, y] = pt.split(',');
-      const dot = document.createElementNS(NS, 'circle');
-      dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('r', '2.5');
-      dot.setAttribute('fill', CHART_C);
-      svg.appendChild(dot);
-    });
-
-    host.appendChild(svg);
+  function renderBadges() {
+    const c = (data.deals && data.deals.counts) || {};
+    const dealsAttn = (c.pending || 0) + (c.needs_reminder || 0);
+    const nbDeals = $('nb-deals');
+    nbDeals.textContent = dealsAttn ? dealsAttn : '';
+    nbDeals.className = 'nbadge' + (dealsAttn ? ' warn' : '');
+    nbDeals.title = dealsAttn ? (c.pending || 0) + ' pending, ' + (c.needs_reminder || 0) + ' reminders due' : '';
+    const reqN = (data.requests || []).length;
+    const nbAccess = $('nb-access');
+    nbAccess.textContent = reqN ? reqN : '';
+    nbAccess.className = 'nbadge' + (reqN ? ' warn' : '');
   }
 
-  // ── Deals list ──────────────────────────────────────────────────────────────
-  // Deal text comes from vendors, so everything is escaped before it goes
-  // into the page — otherwise a vendor could put HTML/script in an offer.
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  }
-
-  const DEAL_TABS = [
-    { key: 'all',            lbl: 'All' },
-    { key: 'needs_reminder', lbl: 'Needs reminder', attn: true },
-    { key: 'pending',        lbl: 'Pending approval', attn: true },
-    { key: 'active',         lbl: 'Active' },
-    { key: 'expiring',       lbl: 'Expiring soon' },
-    { key: 'grace',          lbl: 'In grace' },
-    { key: 'expired',        lbl: 'Expired' },
-    { key: 'rejected',       lbl: 'Rejected' },
-    { key: 'revoked',        lbl: 'Revoked' },
-  ];
+  // ── Deals ──────────────────────────────────────────────────────────────────
+  const STATUS_LBL = {
+    all: 'All deals', needs_reminder: 'Needs reminder', pending: 'Pending approval', active: 'Active',
+    expiring: 'Expiring soon', grace: 'In grace', expired: 'Expired', rejected: 'Rejected', revoked: 'Revoked',
+  };
   const BUCKET_LBL = {
     pending: 'Pending', active: 'Active', expiring: 'Expiring soon', grace: 'In grace',
     expired: 'Expired', rejected: 'Rejected', revoked: 'Revoked', other: 'Other',
   };
-  // Order used on the "All" tab: things that need you first, history last.
   const BUCKET_ORDER = { pending: 0, expiring: 1, grace: 2, active: 3, expired: 4, rejected: 5, revoked: 6, other: 7 };
-
-  let dealsData = null;
-  let dealTab = 'all';
+  const COUNT_STRIP = [
+    { key: 'pending',        lbl: 'Pending approval', kind: 'neutral' },
+    { key: 'needs_reminder', lbl: 'Needs reminder',   kind: 'warn'    },
+    { key: 'active',         lbl: 'Active',           kind: 'good'    },
+    { key: 'expiring',       lbl: 'Expiring soon',    kind: 'warn'    },
+    { key: 'grace',          lbl: 'In grace',         kind: 'warn'    },
+    { key: 'expired',        lbl: 'Expired',          kind: 'other'   },
+  ];
 
   // 'YYYY-MM-DD' -> 'Oct 12' without any timezone shifting.
   function fmtDay(d) {
     if (!d) return '';
-    const [y, m, dd] = d.split('-').map(Number);
-    return new Date(y, m - 1, dd).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const p = d.split('-').map(Number);
+    return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   }
   function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
 
   function whenCell(d) {
-    if (d.bucket === 'pending')  return '<span class="sm">Set on approval</span>';
+    if (d.bucket === 'pending') return '<span class="sm">Set on approval</span>';
     if (d.bucket === 'rejected' || d.bucket === 'revoked' || d.bucket === 'other') {
       return d.valid_until ? esc(fmtDay(d.valid_until)) : '—';
     }
     if (!d.valid_until) return 'No end date';
     const day = esc(fmtDay(d.valid_until));
     if (d.bucket === 'active' || d.bucket === 'expiring') {
-      const left = d.days_left === 0 ? 'ends today' : plural(d.days_left, 'day') + ' left';
-      return day + '<span class="sm">' + left + '</span>';
+      return day + '<span class="sm">' + (d.days_left === 0 ? 'ends today' : plural(d.days_left, 'day') + ' left') + '</span>';
     }
     if (d.bucket === 'grace') {
-      const ago = Math.abs(d.days_left);
       const codes = d.grace_days_left === 0 ? 'codes work through today' : 'codes work ' + plural(d.grace_days_left, 'more day');
-      return day + '<span class="sm">ended ' + plural(ago, 'day') + ' ago · ' + codes + '</span>';
+      return day + '<span class="sm">ended ' + plural(Math.abs(d.days_left), 'day') + ' ago, ' + codes + '</span>';
     }
     return day + '<span class="sm">ended</span>';
   }
@@ -1065,7 +1070,7 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
   function sortDeals(list, tab) {
     const byCreatedDesc = (a, b) => (b.created_at || '').localeCompare(a.created_at || '');
     const byCreatedAsc  = (a, b) => (a.created_at || '').localeCompare(b.created_at || '');
-    const byDaysLeft    = (a, b) => (a.days_left ?? 9999) - (b.days_left ?? 9999);
+    const byDaysLeft    = (a, b) => (a.days_left == null ? 9999 : a.days_left) - (b.days_left == null ? 9999 : b.days_left);
     const byEndedRecent = (a, b) => (b.valid_until || '').localeCompare(a.valid_until || '');
     const copy = list.slice();
     if (tab === 'pending') return copy.sort(byCreatedAsc); // oldest waiting first
@@ -1073,46 +1078,51 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     if (tab === 'expired') return copy.sort(byEndedRecent);
     if (tab === 'all') {
       return copy.sort((a, b) =>
-        (BUCKET_ORDER[a.bucket] ?? 9) - (BUCKET_ORDER[b.bucket] ?? 9) ||
+        ((BUCKET_ORDER[a.bucket] == null ? 9 : BUCKET_ORDER[a.bucket]) - (BUCKET_ORDER[b.bucket] == null ? 9 : BUCKET_ORDER[b.bucket])) ||
         (a.bucket === 'pending' ? byCreatedAsc(a, b) : byDaysLeft(a, b)) ||
         byCreatedDesc(a, b));
     }
     return copy.sort(byCreatedDesc);
   }
 
-  function renderDealTabs() {
-    const host = document.getElementById('deal-tabs');
-    host.innerHTML = '';
-    const c = dealsData.counts || {};
-    for (const t of DEAL_TABS) {
-      const n = c[t.key] || 0;
-      // Hide empty history tabs to keep the row short; always show the
-      // working tabs so a zero there reads as "all clear".
-      if (!n && (t.key === 'revoked' || t.key === 'rejected')) continue;
-      const btn = document.createElement('button');
-      btn.className = 'deal-tab' + (dealTab === t.key ? ' on' : '') + (t.attn && n ? ' attn' : '');
-      btn.innerHTML = esc(t.lbl) + '<span class="cnt">' + n + '</span>';
-      btn.addEventListener('click', () => { dealTab = t.key; renderDealTabs(); renderDealRows(); });
-      host.appendChild(btn);
-    }
-  }
+  function renderDeals() {
+    if (!data.deals) return;
+    const dd = data.deals;
+    const status = applied.status;
 
-  function renderDealRows() {
+    // Count strip doubles as a quick status picker.
+    const strip = $('deal-counts');
+    strip.innerHTML = '';
+    for (const s of COUNT_STRIP) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'kpi ' + s.kind + (status === s.key ? ' sel' : '');
+      b.innerHTML = kpiHTML((dd.counts && dd.counts[s.key]) || 0, s.lbl, s.kind);
+      b.addEventListener('click', () => goDeals(status === s.key ? 'all' : s.key));
+      strip.appendChild(b);
+    }
+
+    $('deals-title').textContent = STATUS_LBL[status] || 'All deals';
+    $('deals-note').textContent =
+      '"Expiring soon" means ending within ' + dd.expiring_soon_days + ' days. ' +
+      '"Needs reminder" means expiring soon or in grace, with no newer deal from that business.' +
+      (dd.truncated ? ' Showing the newest 1,000 deals only.' : '');
+
+    let list = dd.deals || [];
+    if (status === 'needs_reminder') list = list.filter(d => d.needs_reminder);
+    else if (status !== 'all') list = list.filter(d => d.bucket === status);
+    list = sortDeals(list, status);
+
     const tbody = document.querySelector('#deals-table tbody');
-    const empty = document.getElementById('deals-empty');
+    const empty = $('deals-empty');
     tbody.innerHTML = '';
-    let list = dealsData.deals || [];
-    if (dealTab === 'needs_reminder') list = list.filter(d => d.needs_reminder);
-    else if (dealTab !== 'all') list = list.filter(d => d.bucket === dealTab);
-    list = sortDeals(list, dealTab);
     if (!list.length) { empty.style.display = ''; return; }
     empty.style.display = 'none';
     for (const d of list) {
       const tr = document.createElement('tr');
       const offer = d.description || d.title || '';
       const submitted = d.created_at
-        ? new Date(d.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-        : '—';
+        ? new Date(d.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '—';
       tr.innerHTML =
         '<td><div class="deal-biz">' + esc(d.business) + '</div>' +
           (offer ? '<div class="deal-desc">' + esc(offer) + '</div>' : '') + '</td>' +
@@ -1128,105 +1138,289 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     }
   }
 
-  async function loadDeals() {
-    const parts = [];
-    if (citySelect.value) parts.push('city=' + encodeURIComponent(citySelect.value));
-    if (catSelect.value) parts.push('category=' + encodeURIComponent(catSelect.value));
-    const sub = document.getElementById('deals-sub');
+  // ── Access requests ────────────────────────────────────────────────────────
+  async function loadRequests() {
     try {
-      dealsData = await authFetch('/admin/deals' + (parts.length ? '?' + parts.join('&') : ''));
-      sub.textContent = 'Current state of every deal. Not affected by the time window; the city and category filters apply. ' +
-        '"Expiring soon" means ending within ' + dealsData.expiring_soon_days + ' days. ' +
-        '"Needs reminder" means expiring soon or in grace, with no newer deal from that business.' +
-        (dealsData.truncated ? ' Showing the newest 1,000 deals only.' : '');
-      sub.classList.remove('err');
-      renderDealTabs();
-      renderDealRows();
+      const d = await authFetch('/admin/requests?status=pending');
+      data.requests = d.requests || [];
+      renderRequests(data.requests);
+      renderOverview();
+      renderBadges();
     } catch (e) {
-      if (e.message !== 'session expired') {
-        sub.textContent = 'Could not load deals. Try refreshing.';
-        console.error('loadDeals failed:', e);
-      }
+      if (e.message !== 'session expired') console.error('loadRequests failed:', e);
     }
   }
 
-  async function loadDashboard() {
-    loadDeals(); // independent of the stats below; its own error handling
-    const qs = filterQS();
-    dashStatus.textContent = 'Loading...';
-    dashStatus.classList.remove('err');
-    try {
-      const [overview, categories, cities, gaps, funnel, zero, trend] = await Promise.all([
-        authFetch('/admin/stats/overview?' + qs),
-        authFetch('/admin/stats/categories?' + qs.replace(/&category=[^&]*/, '')), // categories view filters by city only
-        authFetch('/admin/stats/cities?' + qs.replace(/&city=[^&]*/, '')),         // cities view filters by category only
-        authFetch('/admin/stats/gaps?' + windowParams()),
-        authFetch('/admin/stats/vendor-funnel?' + windowParams()),
-        authFetch('/admin/stats/zero-results?' + qs),
-        authFetch('/admin/stats/timeseries?' + qs),
-      ]);
-      renderStatCards(overview);
-      renderCategories(categories);
-      renderCities(cities);
-      renderGaps(gaps);
-      renderFunnel(funnel);
-      renderZeroResults(zero);
-      renderTrend(trend);
-      dashStatus.textContent = overview.truncated
-        ? 'Showing the most recent 5,000 events in this window — actual totals may be higher.'
-        : '';
-    } catch (e) {
-      if (e.message !== 'session expired') {
-        dashStatus.textContent = 'Could not load stats. Try refreshing.';
-        dashStatus.classList.add('err');
-      }
+  function renderRequests(requests) {
+    const tbody = document.querySelector('#requests-table tbody');
+    const empty = $('requests-empty');
+    tbody.innerHTML = '';
+    if (!requests.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    for (const req of requests) {
+      const tr = document.createElement('tr');
+      const when = new Date(req.requested_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const roleLbl = req.requested_role === 'owner' ? 'Full access' : 'View access';
+      tr.innerHTML = '<td>' + esc(req.email) + '</td><td>' + roleLbl + '</td><td>' + esc(when) + '</td>';
+      const actionTd = document.createElement('td');
+      actionTd.className = 'req-actions';
+      const approveBtn = document.createElement('button');
+      approveBtn.className = 'btn-sm approve'; approveBtn.textContent = 'Approve';
+      const rejectBtn = document.createElement('button');
+      rejectBtn.className = 'btn-sm reject'; rejectBtn.textContent = 'Reject';
+      [approveBtn, rejectBtn].forEach(btn => btn.addEventListener('click', async () => {
+        approveBtn.disabled = true; rejectBtn.disabled = true;
+        try {
+          await authFetch('/admin/requests/' + req.id + '/decide', { method: 'POST', body: { approve: btn === approveBtn } });
+          loadRequests();
+        } catch (e) {
+          approveBtn.disabled = false; rejectBtn.disabled = false;
+          alert(e.message || 'Could not decide that request.');
+        }
+      }));
+      actionTd.appendChild(approveBtn);
+      actionTd.appendChild(rejectBtn);
+      tr.appendChild(actionTd);
+      tbody.appendChild(tr);
     }
   }
-  winSelect.addEventListener('change', () => { loadFilters().then(loadDashboard); });
-  citySelect.addEventListener('change', loadDashboard);
-  catSelect.addEventListener('change', loadDashboard);
-  document.getElementById('reset-filters').addEventListener('click', function(e){
-    e.preventDefault();
-    citySelect.value = '';
-    catSelect.value = '';
-    loadDashboard();
+
+  // ── Tables ─────────────────────────────────────────────────────────────────
+  function buildDrillRow(cols, subRows, subHeaders, colSpan) {
+    const tr = document.createElement('tr');
+    tr.className = 'drill-row';
+    tr.innerHTML = '<td><span class="drill-icon">&#9656;</span></td>' + cols;
+    const sub = document.createElement('tr');
+    sub.className = 'drill-panel';
+    sub.style.display = 'none';
+    const subTd = document.createElement('td');
+    subTd.colSpan = colSpan;
+    subTd.innerHTML = subRows.length
+      ? '<div class="drill-inner"><div class="table-wrap"><table><thead><tr>' +
+        subHeaders.map(h => '<th>' + h + '</th>').join('') + '</tr></thead><tbody>' + subRows + '</tbody></table></div></div>'
+      : '<div class="drill-inner">No breakdown available.</div>';
+    sub.appendChild(subTd);
+    tr.addEventListener('click', () => {
+      const open = sub.style.display !== 'none';
+      sub.style.display = open ? 'none' : '';
+      tr.querySelector('.drill-icon').classList.toggle('open', !open);
+    });
+    return [tr, sub];
+  }
+
+  function renderCategories(d) {
+    const tbody = document.querySelector('#cat-table tbody');
+    const empty = $('cat-empty');
+    tbody.innerHTML = '';
+    if (!d.categories.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    const max = Math.max(1, ...d.categories.flatMap(c => [c.searches, c.views]));
+    for (const c of d.categories) {
+      const sPct = Math.round((c.searches / max) * 100);
+      const vPct = Math.round((c.views / max) * 100);
+      const cols =
+        '<td>' + esc(c.category || 'unknown') + '</td>' +
+        '<td><div class="bar-cell"><span class="bar-num">' + c.searches + '</span><div class="bar-track"><div class="bar-fill a" style="width:' + sPct + '%"></div></div></div></td>' +
+        '<td><div class="bar-cell"><span class="bar-num">' + c.views + '</span><div class="bar-track"><div class="bar-fill b" style="width:' + vPct + '%"></div></div></div></td>';
+      const subRows = c.by_city.map(bc => '<tr><td>' + esc(bc.city) + '</td><td>' + bc.searches + '</td><td>' + bc.views + '</td></tr>').join('');
+      const [tr, sub] = buildDrillRow(cols, subRows, ['City', 'Searches', 'Views'], 4);
+      tbody.appendChild(tr); tbody.appendChild(sub);
+    }
+  }
+
+  function renderCities(d) {
+    const tbody = document.querySelector('#city-table tbody');
+    const empty = $('city-empty');
+    tbody.innerHTML = '';
+    if (!d.cities.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    for (const c of d.cities) {
+      const cols = '<td>' + esc(c.city) + '</td><td>' + c.searches + '</td><td>' + c.views + '</td><td>' + c.claims + '</td><td>' + c.zero_results + '</td>';
+      const subRows = c.by_category.map(bc => '<tr><td>' + esc(bc.category) + '</td><td>' + bc.searches + '</td><td>' + bc.views + '</td></tr>').join('');
+      const [tr, sub] = buildDrillRow(cols, subRows, ['Category', 'Searches', 'Views'], 6);
+      tbody.appendChild(tr); tbody.appendChild(sub);
+    }
+  }
+
+  function renderGaps(d) {
+    const tbody = document.querySelector('#gaps-table tbody');
+    const empty = $('gaps-empty');
+    tbody.innerHTML = '';
+    if (!d.gaps.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    for (const g of d.gaps.slice(0, 25)) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + esc(g.city) + '</td><td>' + esc(g.category) + '</td><td><span class="gap-count">' + g.count + '</span></td>';
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderFunnel(d) {
+    const host = $('funnel');
+    const empty = $('funnel-empty');
+    host.innerHTML = '';
+    const f = d.funnel;
+    if (!f.started && !f.completed && !f.approved && !f.rejected) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    const steps = [
+      { lbl: 'Started', n: f.started }, { lbl: 'Completed', n: f.completed },
+      { lbl: 'Approved', n: f.approved }, { lbl: 'Rejected', n: f.rejected },
+    ];
+    const max = Math.max(1, f.started, f.completed);
+    for (const s of steps) {
+      const pct = Math.max(4, Math.round((s.n / max) * 100));
+      const row = document.createElement('div');
+      row.className = 'funnel-step';
+      row.innerHTML = '<div class="funnel-lbl">' + s.lbl + '</div>' +
+        '<div class="funnel-bar-track"><div class="funnel-bar" style="width:' + pct + '%">' + s.n + '</div></div>';
+      host.appendChild(row);
+    }
+    const bits = [];
+    if (d.start_to_complete_pct !== null) bits.push(d.start_to_complete_pct + '% of started submissions were completed.');
+    if (d.approval_rate_pct !== null) bits.push(d.approval_rate_pct + '% of decided deals were approved.');
+    if (bits.length) {
+      const note = document.createElement('div');
+      note.className = 'funnel-note';
+      note.textContent = bits.join(' ');
+      host.appendChild(note);
+    }
+  }
+
+  function renderZeroResults(d) {
+    const tbody = document.querySelector('#zero-table tbody');
+    const empty = $('zero-empty');
+    tbody.innerHTML = '';
+    if (!d.results.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    for (const r of d.results) {
+      const tr = document.createElement('tr');
+      const when = new Date(r.at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      tr.innerHTML = '<td>' + esc(r.query || '—') + '</td><td>' + esc(r.city || '—') + '</td><td>' + esc(r.category || '—') + '</td><td>' + esc(when) + '</td>';
+      tbody.appendChild(tr);
+    }
+  }
+
+  // ── Trend chart (hand-drawn SVG, no chart library) ─────────────────────────
+  const NS = 'http://www.w3.org/2000/svg';
+  const rootStyle = getComputedStyle(document.documentElement);
+  const CHART_A = rootStyle.getPropertyValue('--chart-a').trim() || '#E85D35';
+  const CHART_B = rootStyle.getPropertyValue('--chart-b').trim() || '#16A34A';
+  const CHART_C = rootStyle.getPropertyValue('--ink').trim() || '#1C1917';
+  let lastTrend = null;
+
+  function fmtTime(iso, bucketMinutes) {
+    const d = new Date(iso);
+    return bucketMinutes >= 1440
+      ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+      : d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderTrend(d) {
+    lastTrend = d;
+    const host = $('trend-chart');
+    const empty = $('trend-empty');
+    host.innerHTML = '';
+    if (!d.points.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+
+    const W = Math.max(320, host.clientWidth || 600);
+    const H = 220, padL = 32, padB = 28, padT = 12, padR = 12;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const n = d.points.length;
+    const maxVal = Math.max(1, ...d.points.flatMap(p => [p.search_performed, p.deal_claimed, p.active_users]));
+    const groupW = plotW / n;
+    const barW = Math.max(2, Math.min(18, groupW * 0.32));
+    const gap = Math.max(1, groupW * 0.06);
+
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', H);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Searches, claims and active users over time');
+
+    function text(x, y, anchor, val) {
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', x); t.setAttribute('y', y);
+      t.setAttribute('text-anchor', anchor); t.setAttribute('font-size', '10');
+      t.setAttribute('fill', '#78716C'); t.setAttribute('font-family', "'Plus Jakarta Sans',sans-serif");
+      t.textContent = val;
+      svg.appendChild(t);
+    }
+
+    for (let i = 0; i <= 4; i++) {
+      const y = H - padB - (plotH * (i / 4));
+      const gl = document.createElementNS(NS, 'line');
+      gl.setAttribute('x1', padL); gl.setAttribute('x2', W - padR);
+      gl.setAttribute('y1', y); gl.setAttribute('y2', y);
+      gl.setAttribute('stroke', i === 0 ? '#E7E5E4' : '#F2F1EF'); gl.setAttribute('stroke-width', '1');
+      svg.appendChild(gl);
+      text(padL - 8, y + 3, 'end', Math.round((maxVal / 4) * i));
+    }
+
+    const linePts = [];
+    const showEvery = Math.max(1, Math.ceil(n / (W / 60)));
+    d.points.forEach((p, i) => {
+      const gx = padL + i * groupW;
+      const sH = (p.search_performed / maxVal) * plotH;
+      const cH = (p.deal_claimed / maxVal) * plotH;
+      [[gx + groupW / 2 - barW - gap / 2, sH, CHART_A], [gx + groupW / 2 + gap / 2, cH, CHART_B]].forEach(([x, h, fill]) => {
+        const r = document.createElementNS(NS, 'rect');
+        r.setAttribute('x', x); r.setAttribute('y', H - padB - h);
+        r.setAttribute('width', barW); r.setAttribute('height', h);
+        r.setAttribute('rx', 2); r.setAttribute('fill', fill);
+        svg.appendChild(r);
+      });
+      linePts.push((gx + groupW / 2) + ',' + (H - padB - (p.active_users / maxVal) * plotH));
+      if (i % showEvery === 0) text(gx + groupW / 2, H - padB + 16, 'middle', fmtTime(p.t, d.bucket_minutes));
+    });
+
+    if (linePts.length > 1) {
+      const poly = document.createElementNS(NS, 'polyline');
+      poly.setAttribute('points', linePts.join(' '));
+      poly.setAttribute('fill', 'none');
+      poly.setAttribute('stroke', CHART_C);
+      poly.setAttribute('stroke-width', '2');
+      svg.appendChild(poly);
+    }
+    linePts.forEach(pt => {
+      const xy = pt.split(',');
+      const dot = document.createElementNS(NS, 'circle');
+      dot.setAttribute('cx', xy[0]); dot.setAttribute('cy', xy[1]); dot.setAttribute('r', '2.5');
+      dot.setAttribute('fill', CHART_C);
+      svg.appendChild(dot);
+    });
+    host.appendChild(svg);
+  }
+
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { if (lastTrend && currentSection === 'overview') renderTrend(lastTrend); }, 200);
   });
 
-  // If a session token is already stored, confirm it is still valid before
-  // asking the person to sign in again.
+  // ── Startup ────────────────────────────────────────────────────────────────
   async function tryExistingSession() {
     const token = localStorage.getItem('awzsome_admin_token');
     if (!token) return false;
     try {
-      const r = await fetch(API_BASE + '/admin/whoami', {
-        headers: { Authorization: 'Bearer ' + token },
-      });
+      const r = await fetch(API_BASE + '/admin/whoami', { headers: { Authorization: 'Bearer ' + token } });
       if (!r.ok) { localStorage.removeItem('awzsome_admin_token'); return false; }
-      const data = await r.json();
-      showSignedIn(data.email, data.role);
+      const d = await r.json();
+      showSignedIn(d.email, d.role);
       return true;
     } catch {
-      return false; // network hiccup — fall through to showing sign-in
+      return false;
     }
   }
 
-  document.getElementById('signout-link').addEventListener('click', function(e){
-    e.preventDefault();
-    signOut();
-  });
+  $('signout-link').addEventListener('click', function(e){ e.preventDefault(); signOut(); });
 
   window.addEventListener('load', async function(){
     const alreadyIn = await tryExistingSession();
     if (alreadyIn) return;
-
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse,
-    });
-    google.accounts.id.renderButton(
-      document.getElementById('gbtn-slot'),
-      { theme: 'outline', size: 'large', shape: 'pill' }
-    );
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredentialResponse });
+    google.accounts.id.renderButton($('gbtn-slot'), { theme: 'outline', size: 'large', shape: 'pill' });
   });
 })();
 </script>
