@@ -136,6 +136,29 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
 
 /* Demand gap table: count intensity via a filled amber background swatch */
 .gap-count{display:inline-flex;align-items:center;justify-content:center;min-width:2rem;padding:.2rem .5rem;border-radius:6px;font-weight:700;background:var(--warn-lt);color:var(--warn)}
+/* Deals panel: count tabs, status pills, two-line deal cells */
+.deal-tabs{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.deal-tab{font-family:var(--font);font-size:.8125rem;font-weight:700;color:var(--ink2);background:var(--white);border:1.5px solid var(--border);border-radius:100px;padding:.35rem .85rem;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.deal-tab:hover{border-color:var(--blue);color:var(--blue)}
+.deal-tab.on{background:var(--blue);border-color:var(--blue);color:var(--white)}
+.deal-tab .cnt{opacity:.75;margin-left:.25rem}
+.deal-tab.attn:not(.on){border-color:var(--warn);color:var(--warn);background:var(--warn-lt)}
+.pill{display:inline-block;font-size:.75rem;font-weight:700;padding:.15rem .6rem;border-radius:100px;white-space:nowrap}
+.pill.pending{background:var(--blue-lt);color:var(--blue-dk)}
+.pill.active{background:var(--good-lt);color:var(--good)}
+.pill.expiring{background:var(--warn-lt);color:var(--warn)}
+.pill.grace{background:var(--warn-lt);color:var(--warn);border:1px dashed var(--warn)}
+.pill.expired,.pill.revoked,.pill.other{background:var(--surface);color:var(--ink3);border:1px solid var(--border)}
+.pill.rejected{background:var(--surface);color:var(--blue-dk);border:1px solid var(--border)}
+.pill.remind{background:var(--warn);color:var(--white);margin-left:.35rem}
+.pill.feat{background:var(--ink);color:var(--white);margin-left:.35rem}
+.deal-biz{font-weight:700;color:var(--ink)}
+.deal-desc{font-size:.8125rem;color:var(--ink3);line-height:1.4;margin-top:.15rem;max-width:380px}
+.deal-when{white-space:nowrap}
+.deal-when .sm{display:block;font-size:.75rem;color:var(--ink3)}
+#deals-table{min-width:760px}
+#deals-table td{vertical-align:top;padding-top:.65rem;padding-bottom:.65rem}
+
 /* ── Mobile (phones and small tablets) ─────────────────────────────────────── */
 @media (max-width: 768px) {
   nav{padding:0 16px}
@@ -245,6 +268,17 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
         </div>
 
         <div id="stat-grid"></div>
+
+        <div class="panel" id="deals-panel">
+          <h2>Deals</h2>
+          <div class="sub" id="deals-sub">Current state of every deal. Not affected by the time window; the city and category filters apply.</div>
+          <div class="deal-tabs" id="deal-tabs"></div>
+          <div class="table-wrap"><table id="deals-table">
+            <thead><tr><th>Business &amp; deal</th><th>Status</th><th>Category</th><th>City</th><th>Live until</th><th>Submitted</th><th>Vendor</th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div class="empty-note" id="deals-empty" style="display:none">No deals in this view.</div>
+        </div>
 
         <div class="panel">
           <h2>Demand gaps</h2>
@@ -971,7 +1005,153 @@ td{font-size:.9375rem;color:var(--ink2);padding:.5rem .5rem;border-bottom:1px so
     host.appendChild(svg);
   }
 
+  // ── Deals list ──────────────────────────────────────────────────────────────
+  // Deal text comes from vendors, so everything is escaped before it goes
+  // into the page — otherwise a vendor could put HTML/script in an offer.
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  const DEAL_TABS = [
+    { key: 'all',            lbl: 'All' },
+    { key: 'needs_reminder', lbl: 'Needs reminder', attn: true },
+    { key: 'pending',        lbl: 'Pending approval', attn: true },
+    { key: 'active',         lbl: 'Active' },
+    { key: 'expiring',       lbl: 'Expiring soon' },
+    { key: 'grace',          lbl: 'In grace' },
+    { key: 'expired',        lbl: 'Expired' },
+    { key: 'rejected',       lbl: 'Rejected' },
+    { key: 'revoked',        lbl: 'Revoked' },
+  ];
+  const BUCKET_LBL = {
+    pending: 'Pending', active: 'Active', expiring: 'Expiring soon', grace: 'In grace',
+    expired: 'Expired', rejected: 'Rejected', revoked: 'Revoked', other: 'Other',
+  };
+  // Order used on the "All" tab: things that need you first, history last.
+  const BUCKET_ORDER = { pending: 0, expiring: 1, grace: 2, active: 3, expired: 4, rejected: 5, revoked: 6, other: 7 };
+
+  let dealsData = null;
+  let dealTab = 'all';
+
+  // 'YYYY-MM-DD' -> 'Oct 12' without any timezone shifting.
+  function fmtDay(d) {
+    if (!d) return '';
+    const [y, m, dd] = d.split('-').map(Number);
+    return new Date(y, m - 1, dd).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+  function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+
+  function whenCell(d) {
+    if (d.bucket === 'pending')  return '<span class="sm">Set on approval</span>';
+    if (d.bucket === 'rejected' || d.bucket === 'revoked' || d.bucket === 'other') {
+      return d.valid_until ? esc(fmtDay(d.valid_until)) : '—';
+    }
+    if (!d.valid_until) return 'No end date';
+    const day = esc(fmtDay(d.valid_until));
+    if (d.bucket === 'active' || d.bucket === 'expiring') {
+      const left = d.days_left === 0 ? 'ends today' : plural(d.days_left, 'day') + ' left';
+      return day + '<span class="sm">' + left + '</span>';
+    }
+    if (d.bucket === 'grace') {
+      const ago = Math.abs(d.days_left);
+      const codes = d.grace_days_left === 0 ? 'codes work through today' : 'codes work ' + plural(d.grace_days_left, 'more day');
+      return day + '<span class="sm">ended ' + plural(ago, 'day') + ' ago · ' + codes + '</span>';
+    }
+    return day + '<span class="sm">ended</span>';
+  }
+
+  function sortDeals(list, tab) {
+    const byCreatedDesc = (a, b) => (b.created_at || '').localeCompare(a.created_at || '');
+    const byCreatedAsc  = (a, b) => (a.created_at || '').localeCompare(b.created_at || '');
+    const byDaysLeft    = (a, b) => (a.days_left ?? 9999) - (b.days_left ?? 9999);
+    const byEndedRecent = (a, b) => (b.valid_until || '').localeCompare(a.valid_until || '');
+    const copy = list.slice();
+    if (tab === 'pending') return copy.sort(byCreatedAsc); // oldest waiting first
+    if (tab === 'active' || tab === 'expiring' || tab === 'grace' || tab === 'needs_reminder') return copy.sort(byDaysLeft);
+    if (tab === 'expired') return copy.sort(byEndedRecent);
+    if (tab === 'all') {
+      return copy.sort((a, b) =>
+        (BUCKET_ORDER[a.bucket] ?? 9) - (BUCKET_ORDER[b.bucket] ?? 9) ||
+        (a.bucket === 'pending' ? byCreatedAsc(a, b) : byDaysLeft(a, b)) ||
+        byCreatedDesc(a, b));
+    }
+    return copy.sort(byCreatedDesc);
+  }
+
+  function renderDealTabs() {
+    const host = document.getElementById('deal-tabs');
+    host.innerHTML = '';
+    const c = dealsData.counts || {};
+    for (const t of DEAL_TABS) {
+      const n = c[t.key] || 0;
+      // Hide empty history tabs to keep the row short; always show the
+      // working tabs so a zero there reads as "all clear".
+      if (!n && (t.key === 'revoked' || t.key === 'rejected')) continue;
+      const btn = document.createElement('button');
+      btn.className = 'deal-tab' + (dealTab === t.key ? ' on' : '') + (t.attn && n ? ' attn' : '');
+      btn.innerHTML = esc(t.lbl) + '<span class="cnt">' + n + '</span>';
+      btn.addEventListener('click', () => { dealTab = t.key; renderDealTabs(); renderDealRows(); });
+      host.appendChild(btn);
+    }
+  }
+
+  function renderDealRows() {
+    const tbody = document.querySelector('#deals-table tbody');
+    const empty = document.getElementById('deals-empty');
+    tbody.innerHTML = '';
+    let list = dealsData.deals || [];
+    if (dealTab === 'needs_reminder') list = list.filter(d => d.needs_reminder);
+    else if (dealTab !== 'all') list = list.filter(d => d.bucket === dealTab);
+    list = sortDeals(list, dealTab);
+    if (!list.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    for (const d of list) {
+      const tr = document.createElement('tr');
+      const offer = d.description || d.title || '';
+      const submitted = d.created_at
+        ? new Date(d.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+        : '—';
+      tr.innerHTML =
+        '<td><div class="deal-biz">' + esc(d.business) + '</div>' +
+          (offer ? '<div class="deal-desc">' + esc(offer) + '</div>' : '') + '</td>' +
+        '<td><span class="pill ' + esc(d.bucket) + '">' + esc(BUCKET_LBL[d.bucket] || d.bucket) + '</span>' +
+          (d.needs_reminder ? '<span class="pill remind">Remind</span>' : '') +
+          (d.featured ? '<span class="pill feat">Featured</span>' : '') + '</td>' +
+        '<td>' + esc(d.category || '—') + '</td>' +
+        '<td>' + esc(d.city || '—') + '</td>' +
+        '<td class="deal-when">' + whenCell(d) + '</td>' +
+        '<td class="deal-when">' + esc(submitted) + '</td>' +
+        '<td class="deal-when">' + esc(d.vendor_phone || '—') + '</td>';
+      tbody.appendChild(tr);
+    }
+  }
+
+  async function loadDeals() {
+    const parts = [];
+    if (citySelect.value) parts.push('city=' + encodeURIComponent(citySelect.value));
+    if (catSelect.value) parts.push('category=' + encodeURIComponent(catSelect.value));
+    const sub = document.getElementById('deals-sub');
+    try {
+      dealsData = await authFetch('/admin/deals' + (parts.length ? '?' + parts.join('&') : ''));
+      sub.textContent = 'Current state of every deal. Not affected by the time window; the city and category filters apply. ' +
+        '"Expiring soon" means ending within ' + dealsData.expiring_soon_days + ' days. ' +
+        '"Needs reminder" means expiring soon or in grace, with no newer deal from that business.' +
+        (dealsData.truncated ? ' Showing the newest 1,000 deals only.' : '');
+      sub.classList.remove('err');
+      renderDealTabs();
+      renderDealRows();
+    } catch (e) {
+      if (e.message !== 'session expired') {
+        sub.textContent = 'Could not load deals. Try refreshing.';
+        console.error('loadDeals failed:', e);
+      }
+    }
+  }
+
   async function loadDashboard() {
+    loadDeals(); // independent of the stats below; its own error handling
     const qs = filterQS();
     dashStatus.textContent = 'Loading...';
     dashStatus.classList.remove('err');
